@@ -1,0 +1,73 @@
+#include <Arduino.h>
+#include <WiFi.h>
+#include <esp_wifi.h>
+#include <WiFiMulti.h>
+#include <HTTPClient.h>
+#include "WiFiCredentials.h"
+
+#define PIN_RED    23 // GPIO23
+#define PIN_GREEN  22 // GPIO22
+#define PIN_BLUE   21 // GPIO21
+
+void readMacAddress(){
+  uint8_t baseMac[6];
+  esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
+  if (ret == ESP_OK) {
+    Serial.print("Base MAC Address: ");
+    Serial.printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+                  baseMac[0], baseMac[1], baseMac[2],
+                  baseMac[3], baseMac[4], baseMac[5]);
+  } else {
+    Serial.println("Failed to read MAC address");
+  }
+}
+
+void setColor(int red, int green, int blue) {
+  analogWrite(PIN_RED,   red);
+  analogWrite(PIN_GREEN, green);
+  analogWrite(PIN_BLUE,  blue);
+}
+
+void blinkColor(int red, int green, int blue, int delayTime = 500) {
+  setColor(red, green, blue); // color
+  delay(delayTime);
+  setColor(0, 0, 0); // Off
+  delay(delayTime);
+}
+
+void signalNoWifiConnection() {
+ blinkColor(255, 0, 0); // Red
+ blinkColor(0, 0, 255); // Blue
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PIN_RED,   OUTPUT);
+  pinMode(PIN_GREEN, OUTPUT);
+  pinMode(PIN_BLUE,  OUTPUT);
+
+  WiFi.begin(SSID, PASSWORD);
+
+  readMacAddress();
+
+  while (WiFi.status() != WL_CONNECTED) {
+    blinkColor(0, 0, 255); // Blue
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to Wi-Fi!");
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  blinkColor(0, 255, 0); 
+  blinkColor(0, 255, 0); 
+  blinkColor(0, 255, 0); 
+}
+
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    signalNoWifiConnection();
+  } else {
+    // Your main code here
+  }
+}
+
