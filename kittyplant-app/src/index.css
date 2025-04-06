@@ -1,12 +1,12 @@
 :root {
+  
   width: 100%;
   margin: 0;
   padding: 0;
-  --kitty-pink: #f8a5b9;
-  --kitty-dark-pink: #c83d6d;
-  --kitty-light-pink: #ffebf0;
-  --kitty-green: #6f9173;
-  --kitty-light-green: #a5cdad;
+  --kitty-pink: #faa3ad;
+  --kitty-dark-pink: #a2235e;
+  --kitty-light-pink: #ffd4d4;
+  --kitty-white: #faf3e8;
 }
 
 * {
@@ -16,9 +16,8 @@
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--kitty-light-pink);
-  color: #333;
+  font-family: "Antonio", sans-serif;
+  background-color: var(--kitty-white);
 }
 
 .app-container {

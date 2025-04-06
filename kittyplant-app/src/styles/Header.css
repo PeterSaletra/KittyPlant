@@ -1,15 +1,21 @@
 .header {
+    font-family: "Antonio", sans-serif;
+    font-style: light;
+    font-weight: 500;
+    font-size: 1.1rem;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 1.5rem;
     background-color: var(--kitty-light-pink);
-    position: relative;
+    width: 70%;
+    height: 2rem;
+    border-radius: 5.625rem;
+    margin: 0 auto;
+    margin-top: 1rem;
   }
   
   .logo {
-    font-size: 2rem;
-    font-weight: 700;
     display: flex;
   }
   
@@ -23,19 +29,17 @@
   
   .nav-list {
     display: flex;
-    gap: 1.5rem;
+    gap: 13rem;
   }
   
   .nav-item {
     text-transform: uppercase;
-    font-size: 0.875rem;
-    color: var(--kitty-dark-pink);
-    font-weight: 600;
+    color: black;
     transition: color 0.3s ease;
   }
-  
+
   .nav-item:hover {
-    color: var(--kitty-green);
+    color: var(--kitty-dark-pink);
   }
   
   @media (max-width: 768px) {

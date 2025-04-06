@@ -1,4 +1,5 @@
 import '../styles/ProductInfo.css';
+import kittyplant from '../assets/kittyandplant.png';
 
 const ProductInfo = () => {
   return (
@@ -10,8 +11,9 @@ const ProductInfo = () => {
           </h2>
         </div>
         <div className="product-illustration">
-          <div className="plant-pot"></div>
-          <div className="cat-silhouette-dark"></div>
+          <div className="plant-pot">
+            <img src={kittyplant} alt="" className='icon-kittyplant'/>
+          </div>
         </div>
       </div>
     </section>

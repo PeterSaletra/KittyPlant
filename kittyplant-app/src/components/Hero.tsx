@@ -1,19 +1,24 @@
 import '../styles/Hero.css';
+import kittymain from '../assets/kittymain.png';
+import kiityplantlogo from '../assets/kittyplant-logo.png';
+import plant2 from '../assets/plant2.png';
 
 const Hero = () => {
   return (
-    <section className="hero">
-      <div className="hero-content">
-        <h1 className="hero-title">
-          <span className="title-kitty">KittyPlant</span>
-          <span className="title-slogan">The Purrfect Way<br />to Keep Your Plants Happy!</span>
-        </h1>
-        <div className="cat-illustration">
-          {/* Tutaj byłby obrazek kota */}
-          <div className="cat-silhouette"></div>
-        </div>
+    <div className="hero">
+      <div className='hero-logo'>
+        <img src={kiityplantlogo} alt="Logo" className='hero-logo-img' />
       </div>
-    </section>
+      <div className='hero-plant'>
+        <img src={plant2} alt="" className='hero-plant-img'/>
+      </div>
+      <div className='hero-cat'>
+        <img src={kittymain} alt="Logo" className='hero-cat-img' />
+      </div>
+      <div className='hero-text'>
+        <span className='hero-text-ctx'>The Purrfect Way to Keep Your Plants Happy!</span>
+      </div>
+    </div>
   )
 }
 

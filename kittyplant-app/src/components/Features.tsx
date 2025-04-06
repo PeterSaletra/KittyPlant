@@ -1,4 +1,7 @@
 import '../styles/Features.css';
+import Icon1 from '../assets/1.png';
+import K1Icon from '../assets/K1.png';
+import plant from '../assets/plant.png';
 
 const Features = () => {
   return (
@@ -6,24 +9,28 @@ const Features = () => {
       <div className="features-container">
         <div className="feature-card">
           <div className="feature-icon">
-            {/* Ikona rośliny */}
-            <div className="icon-placeholder"></div>
+            
+            <div className="icon-placeholder">
+              <img src={plant} alt="icon" className='icon' />
+            </div>
           </div>
-          <h3 className="feature-title">NOTIFY IF SOIL IS TOO DRY</h3>
+          <h3 className="feature-title">CHOOSE OR ADD ANY PLANT</h3>
+        </div>
+        
+        <div className="feature-card">
+            <div className="feature-icon">
+              <div className="icon-placeholder">
+                <img src={K1Icon} alt="Icon" className='icon'/>
+              </div>
+            </div>
+          <h3 className="feature-title">WATER AS NEEDED</h3>
         </div>
         
         <div className="feature-card">
           <div className="feature-icon">
-            {/* Ikona konewki */}
-            <div className="icon-placeholder"></div>
-          </div>
-          <h3 className="feature-title">SMART WATERING</h3>
-        </div>
-        
-        <div className="feature-card">
-          <div className="feature-icon">
-            {/* Ikona wykresu */}
-            <div className="icon-placeholder"></div>
+            <div className="icon-placeholder">
+              <img src={Icon1} alt="icon" className='icon' />
+            </div>
           </div>
           <h3 className="feature-title">KEEPS TRACK OF YOUR PLANTS</h3>
         </div>
