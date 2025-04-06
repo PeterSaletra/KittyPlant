@@ -1,0 +1,52 @@
+.footer {
+    padding: 2rem 1rem 4rem;
+    text-align: center;
+  }
+  
+  .contact-title {
+    color: var(--kitty-dark-pink);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-info {
+    background-color: rgba(248, 165, 185, 0.3);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .contact-item {
+    margin-bottom: 0.5rem;
+  }
+  
+  .contact-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .contact-label {
+    font-weight: 700;
+  }
+  
+  .decorative-elements {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .decoration {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+  
+  .decoration.green {
+    background-color: var(--kitty-green);
+  }
+  
+  .decoration.pink {
+    background-color: var(--kitty-pink);
+  }

@@ -1,0 +1,52 @@
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: var(--kitty-light-pink);
+    position: relative;
+  }
+  
+  .logo {
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+  }
+  
+  .logo-kitty {
+    color: var(--kitty-pink);
+  }
+  
+  .logo-plant {
+    color: var(--kitty-dark-pink);
+  }
+  
+  .nav-list {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .nav-item {
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    color: var(--kitty-dark-pink);
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-item:hover {
+    color: var(--kitty-green);
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .nav-list {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+  }

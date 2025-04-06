@@ -1,0 +1,65 @@
+:root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  --kitty-pink: #f8a5b9;
+  --kitty-dark-pink: #c83d6d;
+  --kitty-light-pink: #ffebf0;
+  --kitty-green: #6f9173;
+  --kitty-light-green: #a5cdad;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--kitty-light-pink);
+  color: #333;
+}
+
+.app-container {
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.leaf-decoration {
+  position: absolute;
+  z-index: -1;
+}
+
+.leaf-decoration.top-left {
+  top: 0;
+  left: 0;
+}
+
+.leaf-decoration.top-right {
+  top: 0;
+  right: 0;
+}
+
+.leaf-decoration.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.leaf-decoration.bottom-right {
+  bottom: 0;
+  right: 0;
+}

@@ -1,0 +1,57 @@
+.hero {
+    text-align: center;
+    padding: 2.5rem 1rem;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .hero-title {
+    margin-bottom: 2rem;
+  }
+  
+  .title-kitty {
+    display: block;
+    color: var(--kitty-pink);
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .title-slogan {
+    display: block;
+    color: var(--kitty-dark-pink);
+    font-size: 2.25rem;
+    line-height: 1.2;
+  }
+  
+  .cat-illustration {
+    margin-top: 2rem;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .cat-silhouette {
+    width: 150px;
+    height: 150px;
+    background-color: #000;
+    border-radius: 50%;
+    position: relative;
+    display: inline-block;
+    clip-path: polygon(
+      35% 0%, 65% 0%, 85% 15%, 95% 35%, 
+      95% 65%, 85% 85%, 65% 100%, 35% 100%, 
+      15% 85%, 5% 65%, 5% 35%, 15% 15%
+    );
+  }
+  
+  @media (max-width: 768px) {
+    .title-kitty {
+      font-size: 2.5rem;
+    }
+    
+    .title-slogan {
+      font-size: 1.75rem;
+    }
+  }

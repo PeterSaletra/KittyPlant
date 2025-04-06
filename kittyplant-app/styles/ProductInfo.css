@@ -1,0 +1,64 @@
+.product-info {
+    width: 100%;
+    background-color: var(--kitty-dark-pink);
+    color: white;
+    padding: 2.5rem 1rem;
+    margin-top: 2rem;
+  }
+  
+  .product-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .product-description {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+  
+  .product-illustration {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .plant-pot {
+    width: 120px;
+    height: 120px;
+    background-color: var(--kitty-light-green);
+    border-radius: 0.5rem;
+    position: relative;
+  }
+  
+  .cat-silhouette-dark {
+    position: absolute;
+    width: 80px;
+    height: 120px;
+    background-color: black;
+    right: -30px;
+    bottom: -20px;
+    clip-path: ellipse(50% 40% at 50% 50%);
+  }
+  
+  @media (min-width: 768px) {
+    .product-info-container {
+      flex-direction: row;
+      align-items: center;
+    }
+    
+    .product-text {
+      flex: 1;
+    }
+    
+    .product-illustration {
+      flex: 1;
+    }
+    
+    .product-description {
+      text-align: left;
+    }
+  }
