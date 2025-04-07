@@ -1,24 +1,39 @@
 .footer {
     padding: 2rem 1rem 4rem;
     text-align: center;
+    justify-self: center;
+    display: flex;
   }
   
+  .footer-content{
+    padding: 2rem 1rem 4rem;
+    text-align: center;
+    justify-self: center;
+    margin: 0 auto;
+    align-items: center;
+  }
+
   .contact-title {
-    color: var(--kitty-dark-pink);
-    font-size: 1.5rem;
+    color: black;
+    font-size: 3rem;
+    font-weight: 100;
     margin-bottom: 1rem;
   }
   
   .contact-info {
-    background-color: rgba(248, 165, 185, 0.3);
+    background-color: #FFD4D4;
     max-width: 600px;
     margin: 0 auto 2rem;
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: 3.25rem;
+    display: flex;
   }
   
   .contact-item {
-    margin-bottom: 0.5rem;
+    margin-right: 2rem;
+    margin-left: 2rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
   }
   
   .contact-item:last-child {

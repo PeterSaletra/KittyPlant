@@ -44,21 +44,29 @@ ul {
 }
 
 .leaf-decoration.top-left {
+  height: auto;
+  width: 30%;
   top: 0;
   left: 0;
 }
 
 .leaf-decoration.top-right {
+  height: auto;
+  width: 30%;
   top: 0;
   right: 0;
 }
 
 .leaf-decoration.bottom-left {
-  bottom: 0;
+  height: auto;
+  width: 21%;
+  bottom: auto;
   left: 0;
 }
 
 .leaf-decoration.bottom-right {
-  bottom: 0;
+  height: auto;
+  width: 21%;
+  bottom: auto;
   right: 0;
 }

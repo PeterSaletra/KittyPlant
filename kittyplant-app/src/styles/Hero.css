@@ -42,12 +42,10 @@
   align-self: center;  
 }
 
-
-
 .hero-logo-img{
   justify-self: center;
   height: auto;
-  width: 80%;
+  width: 82%;
   margin: 0 auto;
 }
 
@@ -59,9 +57,9 @@
 
 .hero-cat-img{
   height: auto;
-  width: 100%;
+  width: 105%;
 }
 
 .hero-text-ctx{
-  font-size: 4rem;
+  font-size: 4em;
 }
