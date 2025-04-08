@@ -8,6 +8,7 @@
 #define PIN_RED    23 // GPIO23
 #define PIN_GREEN  22 // GPIO22
 #define PIN_BLUE   21 // GPIO21
+#define PIN_SENSOR A0 // SVP
 
 void readMacAddress(){
   uint8_t baseMac[6];
@@ -36,8 +37,29 @@ void blinkColor(int red, int green, int blue, int delayTime = 500) {
 }
 
 void signalNoWifiConnection() {
- blinkColor(255, 0, 0); // Red
- blinkColor(0, 0, 255); // Blue
+  blinkColor(255, 0, 0); // Red
+  blinkColor(0, 0, 255); // Blue
+  Serial.println("No Wi-Fi connection!");
+  Serial.println("Reconnecting...");
+  
+  WiFi.disconnect();
+  WiFi.begin(SSID, PASSWORD);
+
+  int retryCount = 0;
+  while (WiFi.status() != WL_CONNECTED && retryCount < 10) {
+    blinkColor(255, 0, 0);
+    blinkColor(0, 0, 255); 
+    Serial.print(".");
+    retryCount++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nReconnected to Wi-Fi!");
+    Serial.print("ESP32 IP Address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nFailed to reconnect to Wi-Fi.");
+  }
 }
 
 void setup() {
@@ -67,7 +89,14 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     signalNoWifiConnection();
   } else {
-    // Your main code here
+    int sensorValue = analogRead(PIN_SENSOR); // Read the sensor value
+    Serial.print("Sensor Value: ");
+    Serial.println(sensorValue);
+
+    int realValue = 100 - map(sensorValue, 0, 4095, 0, 100); // Map to percentage (0-100%)
+    Serial.print("Real Value: ");
+    Serial.printf("%d%%\n", realValue);
+    delay(1000); 
   }
 }
 
