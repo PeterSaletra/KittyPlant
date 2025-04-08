@@ -1,2 +1,2 @@
-#define SSID "moto"
-#define PASSWORD "dupadupa"
+#define SSID 
+#define PASSWORD 
