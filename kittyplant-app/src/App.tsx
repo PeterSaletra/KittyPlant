@@ -1,25 +1,21 @@
-import Header from './components/Header'
-import Hero from './components/Hero'
-import Features from './components/Features'
-import ProductInfo from './components/ProductInfo'
-import Footer from './components/Footer'
-// import leafbottom from './assets/leaf-bottom.png'
-import leaftoplfet from './assets/leaftopleft.png'
-import leaftopright from './assets/leaftopright.png'
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import PlantsPage from './pages/PlantsPage'
+import Register from './pages/RegisterPage'
 
 function App() {
   return (
-    <div className="app-container">
-      
-      <Header />
-      <Hero />
-      <Features />
-      <ProductInfo />
-      <Footer />
-      <img src={leaftoplfet} alt="Leaf Top Left" className="leaf-decoration top-left"/>
-      <img src={leaftopright} alt="Leaf Top Right" className="leaf-decoration top-right"/>
-    </div>
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<Register/>} />
+          <Route path="/plants" element={<PlantsPage />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+    </BrowserRouter>
   )
 }
 
-export default App
+export default App;

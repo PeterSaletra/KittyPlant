@@ -1,0 +1,27 @@
+.tmp-plant{
+    height: 100%;
+}
+
+.plants-page{
+    height: 100%;
+    width: 100%;
+}
+
+.btn-add-device {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 1000;  
+    background-color: var(--kitty-dark-pink); 
+    font-size: 1.6rem;
+    color: white;
+    border: none; 
+    border-radius: 5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.btn-add-device:hover {
+    transform: scale(1.05);
+}

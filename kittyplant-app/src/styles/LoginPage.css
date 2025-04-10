@@ -1,0 +1,89 @@
+#root{
+    margin: 0;
+    height: 100%;
+}
+
+html, body{
+    margin: 0;
+    height: 97%;
+}
+
+.tmp{
+    height: 100%;
+    font-family: "Antonio", sans-serif;
+    font-style: light;
+    font-weight: 500;
+}
+
+.login-page{
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.alert{
+    background-color: var(--kitty-light-pink);
+    width: 50%;
+    margin: auto;
+    padding: 0.5rem;
+    border-radius: 3rem;
+    color: var(--kitty-dark-pink);
+}
+
+.form-container{
+    padding: 2rem;
+    width: 40%;
+    background-color: var(--kitty-light-pink);
+    border-radius: 3rem;
+    margin: 0 auto;
+    text-align: center;
+    justify-content: center;
+    justify-self: center;
+    text-transform: uppercase;
+    box-shadow: 1rem 1rem 1rem 1rem rgba(0, 0, 0, 0.2);
+}
+
+.form-group{
+    padding: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    text-align: center;
+}
+
+label{
+    font-size: 1.1rem;
+    margin: 0.3rem;
+}
+
+input{
+    width: 50%;
+    margin: auto;
+    background-color: var(--kitty-white);
+    height: 2rem;
+    border-radius: 3rem;
+    padding: 1rem;
+    border: none;
+    font-family: "Antonio", sans-serif;
+    font-style: light;
+    font-weight: 500;
+}
+
+button{
+    background-color: var(--kitty-dark-pink);
+    color: var(--kitty-white);
+    margin: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-size: 1rem;
+    border-radius: 2rem;
+    border: none;
+    font-family: "Antonio", sans-serif;
+    font-style: light;
+    font-weight: 500;
+    font-size: 1.5rem;
+}
