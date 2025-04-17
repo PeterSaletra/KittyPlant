@@ -7,6 +7,29 @@
     width: 100%;
 }
 
+.plant-card {
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 5rem auto;
+}
+
+.btn-options{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;  
+    background-color: var(--kitty-dark-pink); 
+    font-size: 1.6rem;
+    color: white;
+    border: none; 
+    border-radius: 5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .btn-add-device {
     position: fixed;
     bottom: 0;

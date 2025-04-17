@@ -1,0 +1,18 @@
+.water-level{
+    margin: 0 auto;
+    width: 20%;
+    padding: 0;
+}
+
+.water-level__container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.water-level__image{
+  width: 100%;
+  height: auto;
+}
