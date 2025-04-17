@@ -3,6 +3,7 @@
 #include <esp_wifi.h>
 #include <WiFiMulti.h>
 #include <WebServer.h>
+// #include <PubSubClient.h>
 #include <DNSServer.h>
 #include <HTTPClient.h>
 #include "WebPage.h"
@@ -133,6 +134,7 @@ void setup() {
   while(!gotCredentials){
     dnsServer.processNextRequest();
     server.handleClient();
+    blinkColor(255, 255, 255);
     Serial.println("Waiting for credentials...");
   }
   server.stop();
@@ -141,7 +143,7 @@ void setup() {
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(SSID, PASSWORD);
+  WiFi.begin(ssid, password);
 
   readMacAddress();
 
