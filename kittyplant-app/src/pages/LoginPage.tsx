@@ -16,11 +16,11 @@ function Login(){
         e.preventDefault();
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
-        const username = formData.get('username') as string;
-        const password = formData.get('password') as string;
+        const username_form = formData.get('username') as string;
+        const password_form = formData.get('password') as string;
         console.log("Handle works")
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { username: username, passowrd: password });
+            const response = await axios.post('http://localhost:8080/api/auth/login', { "username": username_form, "password": password_form});
             console.log(response.data); // Handle successful login
 
             if(response.status === 200) {

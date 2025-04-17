@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +24,7 @@ func main() {
 	log.Print("Serve http://0.0.0.0:" + port)
 	router := gin.Default()
 	router.Use(gin.Logger())
+	router.Use(cors.Default())
 
 	router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
