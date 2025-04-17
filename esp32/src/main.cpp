@@ -13,8 +13,8 @@
 #define PIN_BLUE   21 // GPIO21
 #define PIN_SENSOR A0 // SVP
 
-const char* ssidAP = "";
-const char* passwordAP = "";
+const char* ssidAP = "Test";
+const char* passwordAP = "testtest";
 
 DNSServer dnsServer;
 WebServer server(80);

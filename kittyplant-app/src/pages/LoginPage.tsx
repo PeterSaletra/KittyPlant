@@ -20,8 +20,13 @@ function Login(){
         const password = formData.get('password') as string;
         console.log("Handle works")
         try {
-            const response = await axios.post('https://api.example.com/login', { username, password });
+            const response = await axios.post('http://localhost:8080/api/auth/login', { username: username, passowrd: password });
             console.log(response.data); // Handle successful login
+
+            if(response.status === 200) {
+                localStorage.setItem('login', "true"); // Store token in local storage
+                navigate("/plants"); // Redirect to home page
+            }
         } catch (error) {
             setError("Invalid username or password!");
         }
