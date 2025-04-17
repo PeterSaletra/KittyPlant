@@ -84,7 +84,7 @@ void handleConnect(){
   ssid = server.arg("ssid");
   password = server.arg("password");
 
-  server.send(200, "text/html", "<h1>Connecting...</h1>");
+  server.send(200, "text/html", connecting_page);
   delay(1000);
   gotCredentials = true;
 }

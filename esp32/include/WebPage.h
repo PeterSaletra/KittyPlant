@@ -100,4 +100,47 @@ const char* webpage = R"html(
 </html>
 )html";
 
+const char* connecting_page = R"html(
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KittyPlant WiFi Setup</title>
+  <meta name=""description" content="Połącz się ze swoim urządzeniem KittyPlant" />
+  <style>
+    body
+{
+    margin: 0;
+    background-color: #FAA3AD;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: "Antonio", sans-serif;
+    font-style: light;
+  
+}
 
+.header {
+    background-color: #7AA081;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 20px 20px 20px 20px;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    text-align: center;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    Connecting...
+  </div>
+
+</body>
+</html>
+)html";
