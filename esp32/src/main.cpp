@@ -3,7 +3,7 @@
 #include <esp_wifi.h>
 #include <WiFiMulti.h>
 #include <WebServer.h>
-// #include <PubSubClient.h>
+#include <PubSubClient.h>
 #include <DNSServer.h>
 #include <HTTPClient.h>
 #include "WebPage.h"
@@ -13,6 +13,10 @@
 #define PIN_GREEN  22 // GPIO22
 #define PIN_BLUE   21 // GPIO21
 #define PIN_SENSOR A0 // SVP
+
+#define MSG_BUFFER_SIZE 50
+
+const char* hostname = "kp-0001";
 
 const char* ssidAP = "Test";
 const char* passwordAP = "testtest";
@@ -24,6 +28,10 @@ String ssid;
 String password;
 
 bool gotCredentials = false;
+
+const char* mqtt_server = "192.168.1.133";
+WiFiClient espClient;
+PubSubClient client(espClient);
 
 void readMacAddress(){
   uint8_t baseMac[6];
@@ -49,6 +57,12 @@ void blinkColor(int red, int green, int blue, int delayTime = 500) {
   delay(delayTime);
   setColor(0, 0, 0);
   delay(delayTime);
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    client.connect(hostname);
+  }
 }
 
 void signalNoWifiConnection() {
@@ -96,7 +110,7 @@ void setup() {
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE,  OUTPUT);
 
-  WiFi.setHostname("kp-0001");
+  WiFi.setHostname(hostname);
   WiFi.mode(WIFI_AP_STA);
 
   WiFi.softAP(ssidAP, passwordAP);
@@ -155,12 +169,21 @@ void setup() {
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
 
+
+  client.setServer(mqtt_server, 1883);
+  client.connect(hostname);
+
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
 }
 
 void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
   if (WiFi.status() != WL_CONNECTED) {
     signalNoWifiConnection();
   } else {
@@ -170,6 +193,11 @@ void loop() {
 
     int realValue = 100 - map(sensorValue, 0, 4095, 0, 100);
     Serial.printf("%d%%\n", realValue);
+
+    char* msg;
+    snprintf (msg, MSG_BUFFER_SIZE, "{\"water_level\": \"%d\"}", realValue);
+    client.publish(hostname, msg, true);
+
     delay(1000); 
   }
 }

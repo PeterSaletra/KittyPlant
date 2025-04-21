@@ -21,11 +21,11 @@ function Login(){
         console.log("Handle works")
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', { "username": username_form, "password": password_form});
-            console.log(response.data); // Handle successful login
+            console.log(response.data);
 
             if(response.status === 200) {
-                localStorage.setItem('login', "true"); // Store token in local storage
-                navigate("/plants"); // Redirect to home page
+                localStorage.setItem('login', "true");
+                navigate("/plants");
             }
         } catch (error) {
             setError("Invalid username or password!");

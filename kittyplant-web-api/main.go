@@ -43,5 +43,61 @@ func main() {
 		}
 	})
 
+	router.GET("/api/devices", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"devices": []map[string]interface{}{
+				{
+					"name":       "device1",
+					"status":     "online",
+					"plant":      "plant1",
+					"waterLevel": 80,
+				},
+				{
+					"name":       "device2",
+					"status":     "online",
+					"plant":      "plant1",
+					"waterLevel": 60,
+				},
+				{
+					"name":       "device3",
+					"status":     "online",
+					"plant":      "plant1",
+					"waterLevel": 20,
+				},
+				{
+					"name":       "device4",
+					"status":     "online",
+					"plant":      "plant1",
+					"waterLevel": 40,
+				},
+				{
+					"name":       "device5",
+					"status":     "online",
+					"plant":      "plant1",
+					"waterLevel": 0,
+				},
+			},
+		})
+	})
+
+	router.GET("/api/plants", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"plants": []map[string]interface{}{
+				{
+					"name":        "Szczypiorek",
+					"waterLevel":  80,
+					"temperature": 22,
+					"humidity":    60,
+				},
+				{
+					"name":        "Bajaminek",
+					"waterLevel":  60,
+					"temperature": 20,
+					"humidity":    55,
+				},
+			},
+		})
+	})
+
 	router.Run()
 }
