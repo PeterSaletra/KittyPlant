@@ -103,17 +103,14 @@ function PlantsPage() {
         <div className="modal">
           <div className="modal-content">
             <h2>ADD NEW DEVICE</h2>
-            <label>
-              DEVICE NAME
+            <label>DEVICE NAME</label>
               <input
                 type="text"
                 value={newDeviceName}
                 placeholder='DEVICE NAME'
                 onChange={(e) => setNewDeviceName(e.target.value)}
               />
-            </label>
-            <label>
-              PLANT
+            <label>PLANT</label>
               <select
                 value={newDevicePlant}
                 onChange={(e) => setNewDevicePlant(e.target.value)}
@@ -126,27 +123,25 @@ function PlantsPage() {
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              <input 
-                type="checkbox"
-                checked={isCustomPlant}
-                onChange={(e) => setIsCustomPlant(e.target.checked)}
-              />
-              ADD CUSTOM PLANT
-            </label>
+              <label style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
+                <input 
+                  type="checkbox"
+                  checked={isCustomPlant}
+                  onChange={(e) => setIsCustomPlant(e.target.checked)}
+                />
+                ADD CUSTOM PLANT
+              </label>
             {isCustomPlant && (
-              <><label>
-                CUSTOM PLANT NAME
+              <><label>CUSTOM PLANT NAME</label>
                 <input
                   type="text"
                   value={customPlantName}
                   placeholder='PLANT NAME'
                   onChange={(e) => setCustomPlantName(e.target.value)} />
-              </label>
-              <label>
-                HYDRATION LEVEL
-                <RangeSlider 
+              <label>HYDRATION LEVEL</label>
+                <RangeSlider
+                  id="range-slider"
+                  className="margin-lg"
                   min={0} 
                   max={100} 
                   step={5}  
@@ -154,7 +149,6 @@ function PlantsPage() {
                   onInput={setCustomWaterLevels}
                   />
                   {customWaterLevels[0]}% - {customWaterLevels[1]}%
-              </label>
               </>
             )}
             <div className="modal-actions">
