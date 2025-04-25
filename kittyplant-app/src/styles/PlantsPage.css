@@ -107,10 +107,40 @@
     color: black;
   }
 
-    .modal-content select option:hover, .modal-content select option:checked {
-        background-color: var(--kitty-dark-pink) !important;
-        color: white !important;
-    }
+  .modal-content select option:hover, .modal-content select option:checked {
+    background-color: var(--kitty-dark-pink) !important;
+    color: white !important;
+  }
+
+  .modal-content select option:checked {
+    background-color: var(--kitty-dark-pink) !important;
+    color: white !important;
+  }
+  
+  #range-slider {
+    background: black;
+  }
+  
+  #range-slider .range-slider__range {
+    background: #FAA3AD;
+    transition: height 0.3s;
+  }
+  
+  #range-slider .range-slider__thumb {
+    width: 17px;      
+    height: 17px;
+    border-radius: 50%;
+    background: #f2909c;
+    transition: transform 0.3s;
+  }
+  
+  #range-slider .range-slider__thumb[data-active] {
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  
+  #range-slider .range-slider__range[data-active] {
+    height: 16px;
+  }
   
   .modal-actions {
     display: flex;

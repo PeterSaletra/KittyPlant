@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
+import RangeSlider from "react-range-slider-input";
+import "react-range-slider-input/dist/style.css";
 
 function PlantsPage() {
   const [waterLevels, setWaterLevels] = useState<number[]>([]);
@@ -14,6 +16,9 @@ function PlantsPage() {
   const [newDeviceName, setNewDeviceName] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
   const [plantsName, setPlantsName] = useState<string[]>([]);
+  const [isCustomPlant, setIsCustomPlant] = useState(false);
+  const [customPlantName, setCustomPlantName] = useState('');
+  const [customWaterLevels, setCustomWaterLevels] = useState([0, 100]);
 
   const handleUpdateWaterLevel = () =>{
     try{
@@ -63,6 +68,9 @@ function PlantsPage() {
     const newDevice = {
       name: newDeviceName,
       plant: newDevicePlant,
+      waterLevelMin: isCustomPlant ? customWaterLevels[0] : undefined,
+      waterLevelMax: isCustomPlant ? customWaterLevels[1] : undefined,
+      customPlant: isCustomPlant ? customPlantName : undefined,
     };
 
     axios
@@ -95,17 +103,14 @@ function PlantsPage() {
         <div className="modal">
           <div className="modal-content">
             <h2>ADD NEW DEVICE</h2>
-            <label>
-              DEVICE NAME
+            <label>DEVICE NAME</label>
               <input
                 type="text"
                 value={newDeviceName}
                 placeholder='DEVICE NAME'
                 onChange={(e) => setNewDeviceName(e.target.value)}
               />
-            </label>
-            <label>
-              PLANT
+            <label>PLANT</label>
               <select
                 value={newDevicePlant}
                 onChange={(e) => setNewDevicePlant(e.target.value)}
@@ -118,7 +123,34 @@ function PlantsPage() {
                   </option>
                 ))}
               </select>
-            </label>
+              <label style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
+                <input 
+                  type="checkbox"
+                  checked={isCustomPlant}
+                  onChange={(e) => setIsCustomPlant(e.target.checked)}
+                />
+                ADD CUSTOM PLANT
+              </label>
+            {isCustomPlant && (
+              <><label>CUSTOM PLANT NAME</label>
+                <input
+                  type="text"
+                  value={customPlantName}
+                  placeholder='PLANT NAME'
+                  onChange={(e) => setCustomPlantName(e.target.value)} />
+              <label>HYDRATION LEVEL</label>
+                <RangeSlider
+                  id="range-slider"
+                  className="margin-lg"
+                  min={0} 
+                  max={100} 
+                  step={5}  
+                  value={customWaterLevels}
+                  onInput={setCustomWaterLevels}
+                  />
+                  {customWaterLevels[0]}% - {customWaterLevels[1]}%
+              </>
+            )}
             <div className="modal-actions">
               <button onClick={handleSubmitNewDevice}>SUBMIT</button>
               <button onClick={handleModalClose}>CANCEL</button>
