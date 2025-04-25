@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"kittyplant-web-app/store"
+	"kittyplant-api/store"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"

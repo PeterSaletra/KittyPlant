@@ -1,10 +1,10 @@
 package main
 
 import (
-	"kittyplant-web-app/config"
-	"kittyplant-web-app/controllers"
-	"kittyplant-web-app/store"
-	"kittyplant-web-app/transport"
+	"kittyplant-api/config"
+	"kittyplant-api/controllers"
+	"kittyplant-api/store"
+	"kittyplant-api/transport"
 	"log"
 )
 

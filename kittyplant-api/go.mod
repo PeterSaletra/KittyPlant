@@ -1,4 +1,4 @@
-module kittyplant-web-app
+module kittyplant-api
 
 go 1.24.0
 

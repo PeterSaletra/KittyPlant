@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"kittyplant-web-app/config"
+	"kittyplant-api/config"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"

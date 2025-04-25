@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"kittyplant-web-app/store"
+	"kittyplant-api/store"
 
 	"github.com/gin-gonic/gin"
 )

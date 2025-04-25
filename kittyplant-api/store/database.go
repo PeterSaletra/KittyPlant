@@ -2,7 +2,7 @@ package store
 
 import (
 	"fmt"
-	"kittyplant-web-app/config"
+	"kittyplant-api/config"
 	"log"
 
 	"gorm.io/driver/postgres"
