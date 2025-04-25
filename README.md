@@ -1,5 +1,7 @@
 ![logo](/kittyplant-app/src/assets/kittyplant-logo.png)
 
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)![ESP32](https://img.shields.io/badge/ESP32-informational?style=for-the-badge&logo=Arduino&logoColor=white&color=00979D)![React](https://img.shields.io/badge/-React-45b8d8?style=for-the-badge&logo=react&logoColor=white)![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=Vite&logoColor=white)
+
 KittyPlant is an IoT project created as university assigment to help you keep your plants in good condition :muscle:
 
 ## Table of contents
