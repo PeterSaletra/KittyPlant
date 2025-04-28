@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"kittyplant-api/store"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,14 +16,14 @@ type NewDevice struct {
 }
 
 func (c *Controllers) GetDevices(ctx *gin.Context) {
-	var devices []store.Device
-	err := c.DB.GetDevicesAndWaterLevels(&devices)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch devices"})
-		return
-	}
+	// var devices []store.Device
+	// err := c.DB.GetDevicesAndWaterLevels(&devices)
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch devices"})
+	// 	return
+	// }
 
-	log.Printf("Fetched devices: %v", devices)
+	// log.Printf("Fetched devices: %v", devices)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"devices": []map[string]interface{}{
