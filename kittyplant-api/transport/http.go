@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"kittyplant-api/config"
 	"kittyplant-api/controllers"
-	"kittyplant-api/mqtt"
 	"kittyplant-api/store"
 	"log"
 	"net/http"
@@ -13,14 +12,15 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 type HttpServer struct {
 	router *gin.Engine
-	mqtt   *mqtt.MqttClient
-	db     *store.Database
-	c      *controllers.Controllers
+	// mqtt   *mqtt.MqttClient
+	db *store.Database
+	c  *controllers.Controllers
 }
 
 func NewHttpServer(database *store.Database, c *controllers.Controllers) *HttpServer {
@@ -33,9 +33,15 @@ func NewHttpServer(database *store.Database, c *controllers.Controllers) *HttpSe
 func (h *HttpServer) PrepareServer() {
 	r := gin.New()
 	r.Use(gin.Logger())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowCredentials: true,
+	}))
 	h.router = r
 	h.prepareRoutes()
-	h.mqtt = mqtt.NewMqttClient(config.AppConfig.Broker, config.AppConfig.RedisAddr)
+	// h.mqtt = mqtt.NewMqttClient(config.AppConfig.Broker, config.AppConfig.RedisAddr)
 }
 
 func (h *HttpServer) Serve() {
