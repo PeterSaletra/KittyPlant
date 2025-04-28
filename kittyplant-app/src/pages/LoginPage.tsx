@@ -18,19 +18,23 @@ function Login(){
         const formData = new FormData(form);
         const username_form = formData.get('username') as string;
         const password_form = formData.get('password') as string;
-        console.log("Handle works")
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { "username": username_form, "password": password_form});
-            console.log(response.data);
 
-            if(response.status === 200) {
-                localStorage.setItem('login', "true");
+        try {
+            const response = await axios.post(
+                'http://localhost:8080/api/auth/login',
+                { user: username_form, password: password_form }, 
+                { withCredentials: true }
+            );
+
+            if (response.status === 200) {
                 navigate("/plants");
+            } else {
+                setError(`Unexpected response: ${response.status}`);
             }
-        } catch (error) {
+        } catch (err: any) {
+            console.log(err);
             setError("Invalid username or password!");
         }
-        setError(null);
     }   
 
     return (

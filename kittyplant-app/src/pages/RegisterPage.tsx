@@ -3,8 +3,6 @@ import axios from 'axios';
 import '../styles/LoginPage.css'
 import Header from '../components/Header'
 import { useNavigate } from 'react-router-dom';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
 
 function Register(){
     const navigate = useNavigate();
@@ -26,6 +24,15 @@ function Register(){
             return;
         } 
         
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/register', { "username": username, "password": password}, { withCredentials: true });
+            if(response.status === 200) {
+                navigate("/login");
+            }
+        } catch (err: any) {
+            setError("Username already exists!");
+        }
+
         setError(null);
     }   
 
