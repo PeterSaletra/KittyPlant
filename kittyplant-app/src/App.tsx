@@ -5,7 +5,7 @@ import PlantsPage from './pages/PlantsPage'
 import Register from './pages/RegisterPage'
 
 const ProtectedRoute = () => {
-  const isLoggedIn = localStorage.getItem('login') === 'true'; // Use localStorage for consistency
+  const isLoggedIn = document.cookie.includes('session');
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
