@@ -15,14 +15,14 @@ func main() {
 	}
 
 	db := store.NewDatabase()
-	// err = db.Connect()
-	// if err != nil {
-	// 	log.Fatalf("Cannot connect to database: %s\n", err)
-	// }
-	// err = db.Migrate()
-	// if err != nil {
-	// 	log.Fatalf("Cannot migrate database: %s\n", err)
-	// }
+	err = db.Connect()
+	if err != nil {
+		log.Fatalf("Cannot connect to database: %s\n", err)
+	}
+	err = db.Migrate()
+	if err != nil {
+		log.Fatalf("Cannot migrate database: %s\n", err)
+	}
 
 	ctrl := controllers.NewControllers(db)
 
