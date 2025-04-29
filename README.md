@@ -8,7 +8,7 @@ KittyPlant is an IoT project created as university assigment to help you keep yo
 
 ## Table of contents
 * [General info](#general-info)
-* [Electronic Circiut Design](#electronic-circiut-design)
+* [Electronic Circuit Design](#electronic-circuit-design)
 * [Technologies](#technologies)
 * [Setup](#setup)
 
@@ -23,7 +23,7 @@ This project combines hardware and software components to create a seamless expe
 <img src="/img/kittyandplant.png" alt="kittyandplant"/>
 </p>
 
-#### Feautures
+#### Features
 - Login/Register User
 - Add new device
 - Add custom plant to database
@@ -39,7 +39,7 @@ This project combines hardware and software components to create a seamless expe
 
 
 
-## Electronic Circiut Design
+## Electronic Circuit Design
 
 ![circuit_img](/img/hardware_design.png)
 
@@ -91,7 +91,7 @@ npm run dev
 
 #### ESP32
 
-Connect all hardware componets to esp32 board as on [Electronic Circiut Design](#electronic-circiut-design).
+Connect all hardware componets to esp32 board as on [Electronic Circuit Design](#electronic-circuit-design).
 
 Program your esp32 board. We suggest to use platformIO as extension to VS Code.
 
