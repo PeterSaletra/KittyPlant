@@ -84,6 +84,17 @@ services:
     depends_on:
       - backend
 
+  broker:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./conf/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./conf/mosquitto/passwd_file:/mosquitto/config/passwd_file
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
