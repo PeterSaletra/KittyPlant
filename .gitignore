@@ -1,0 +1,7 @@
+.data/
+.idea/
+.env
+/mqtt_tester
+
+/certs
+/conf/mosquitto/passwd_file

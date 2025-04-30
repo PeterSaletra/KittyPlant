@@ -10,7 +10,7 @@ type User struct {
 	Name      string    `json:"name" gorm:"index:,unique"`
 	Password  string    `json:"password"`
 
-	Relations []Relation `gorm:"foreignKey:UserID"`
+	Relations []Relation `gorm:"foreignKey:UserID;references:ID"`
 }
 
 // GetUsers queries the database for all users.

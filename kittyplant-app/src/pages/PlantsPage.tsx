@@ -18,11 +18,11 @@ function PlantsPage() {
   const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
   const [customPlantName, setCustomPlantName] = useState('');
-  const [customWaterLevels, setCustomWaterLevels] = useState([0, 100]);
+  const [customWaterLevels, setCustomWaterLevels] = useState<[number, number]>([0, 100]);
 
   const handleUpdateWaterLevel = () =>{
     try{
-      axios.get('http://localhost:8080/api/v1/devices', { withCredentials: true })
+      axios.get('/api/v1/devices', { withCredentials: true })
       .then((response) => {
         const levels = response.data.devices.map((device: any) => device.waterLevel);
         setWaterLevels(levels);
@@ -49,7 +49,7 @@ function PlantsPage() {
   const handleAddDevice = () => {
     setIsModalOpen(true); // Open the modal
       try{
-      axios.get('http://localhost:8080/api/v1/plants' , { withCredentials: true })
+      axios.get('/api/v1/plants' , { withCredentials: true })
       .then((response) => {
         const plants = response.data.plants.map((plant: any) => plant.name);
         setPlantsName(plants)// Set the first plant as default
@@ -74,7 +74,7 @@ function PlantsPage() {
     };
 
     axios
-      .post('http://localhost:8080/api/v1/devices', newDevice)
+      .post('/api/v1/devices', newDevice)
       .then((response) => {
         console.log('Device added:', response.data);
         handleUpdateWaterLevel(); // Refresh the device list

@@ -6,7 +6,7 @@ type Plant struct {
 	MinHydLevel int    `json:"min_hyd_level"`
 	MaxHydLevel int    `json:"max_hyd_level"`
 
-	Devices []Device `gorm:"foreignKey:PlantID"`
+	Devices []Device `gorm:"foreignKey:ID;references:ID"`
 }
 
 // GetPlants queries the database for all plants.

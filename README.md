@@ -81,6 +81,19 @@ go build
 ./kittyplant-api.exe
 ```
 
+#### Database
+
+```
+docker run --name kittyplant_db -e POSTGRES_USER=kitty -e POSTGRES_PASSWORD=password -e POSTGRES_DB=kittyplant_db -p 5432:5432 -d postgres
+```
+
+#### Mqtt broker
+
+```
+ mosquitto_passwd -c conf/mosquitto/passwd_file username
+t
+```
+
 #### Frontend setup
 
 ```

@@ -1,13 +1,11 @@
 package store
 
 type Device struct {
-	ID       uint   `gorm:"primaryKey" json:"id"`
-	DeviceID string `json:"device_id"`
-	PlantID  uint   `json:"plant_id"`
+	ID         uint   `gorm:"primaryKey;column:id" json:"id"`
+	DeviceName string `gorm:"column:device_name;type:text" json:"device_id"`
 
-	Plant     Plant      `gorm:"foreignKey:PlantID"`
-	Data      []Data     `gorm:"foreignKey:DeviceID"`
-	Relations []Relation `gorm:"foreignKey:DeviceID"`
+	Data      []Data     `gorm:"foreignKey:DeviceID;references:ID"`
+	Relations []Relation `gorm:"foreignKey:DeviceID;references:ID"`
 }
 
 // GetDevices queries the database for all devices.

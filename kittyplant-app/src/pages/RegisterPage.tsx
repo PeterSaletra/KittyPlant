@@ -25,7 +25,7 @@ function Register(){
         } 
         
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', { "username": username, "password": password}, { withCredentials: true });
+            const response = await axios.post('/api/register', { "username": username, "password": password}, { withCredentials: true });
             if(response.status === 200) {
                 navigate("/login");
             }
