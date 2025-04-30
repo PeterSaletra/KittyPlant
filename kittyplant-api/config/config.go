@@ -16,7 +16,7 @@ type Config struct {
 	DbUser    string `env:"DB_USER,required"`
 	DbPass    string `env:"DB_PASS,required"`
 	Broker    string `env:"BROKER,required"`
-	RedisAddr string `env:"REDIS_ADDR,required"`
+	RedisAddr string `env:"REDIS_HOST,required"`
 }
 
 var AppConfig Config

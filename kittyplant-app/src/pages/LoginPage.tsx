@@ -16,12 +16,13 @@ function Login(){
         e.preventDefault();
         const form = e.target as HTMLFormElement;
         const formData = new FormData(form);
-        const username_form = formData.get('username') as string;
-        const password_form = formData.get('password') as string;
+        const username_form = formData.get('username') as string || '';
+        const password_form = formData.get('password') as string || '';
 
         try {
+
             const response = await axios.post(
-                'http://localhost:8080/api/auth/login',
+                '/api/auth/login',
                 { user: username_form, password: password_form }, 
                 { withCredentials: true }
             );

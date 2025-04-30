@@ -19,8 +19,8 @@ func (h *HttpServer) prepareRoutes() {
 
 	auth := h.router.Group("/api/auth")
 	{
-		auth.POST("register", h.c.Register)
-		auth.POST("login", h.c.Login)
+		auth.POST("/register", h.c.Register)
+		auth.POST("/login", h.c.Login)
 	}
 
 	api := h.router.Group("/api/v1")
