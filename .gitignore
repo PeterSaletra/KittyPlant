@@ -3,5 +3,5 @@
 .env
 /mqtt_tester
 
-/conf
+/certs
 /conf/mosquitto/passwd_file
