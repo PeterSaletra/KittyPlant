@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 function Login(){
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
+    const [username_form, setUsername_form] = useState<string>('');
+    const [password_form, setPassword_form] = useState<string>('');
 
     const handleRegister = () => {
         navigate("/register")
@@ -14,10 +16,6 @@ function Login(){
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const username_form = formData.get('username') as string || '';
-        const password_form = formData.get('password') as string || '';
 
         try {
 
@@ -47,11 +45,17 @@ function Login(){
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="username">Username</label>
-                            <input type="text" id="username" name="username" required placeholder='TYPE'/>
+                            <input type="text" id="username" 
+                            value={username_form} 
+                            onChange={(e) => setUsername_form(e.target.value)} 
+                            name="username" required placeholder='TYPE'/>
                         </div>
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <input type="password" id="password" name="password" required placeholder='TYPE'/>
+                            <input type="password" id="password" 
+                            value={password_form} 
+                            onChange={(e) => setPassword_form(e.target.value)} 
+                            name="password" required placeholder='TYPE'/>
                         </div>
                         <div className='button-group'>
                             {

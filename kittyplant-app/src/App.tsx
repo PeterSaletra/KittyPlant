@@ -16,7 +16,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register/>} />
-          <Route path="/plants" element={<ProtectedRoute />}>
+          <Route element={<ProtectedRoute />}>
             <Route path="/plants" element={<PlantsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
