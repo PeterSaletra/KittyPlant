@@ -1,5 +1,7 @@
 .data/
 .idea/
 .env
+/mqtt_tester
 
-conf/mosquitto/passwd_file
+/conf
+/conf/mosquitto/passwd_file
