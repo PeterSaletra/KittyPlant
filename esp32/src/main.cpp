@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <WiFiMulti.h>
@@ -14,9 +15,8 @@
 #define PIN_BLUE   21 // GPIO21
 #define PIN_SENSOR A0 // SVP
 
-#define MSG_BUFFER_SIZE 50
-
 const char* hostname = "kp-0001";
+const char* topic = "kp-0001/data";
 
 const char* ssidAP = "Test";
 const char* passwordAP = "testtest";
@@ -29,9 +29,10 @@ String password;
 
 bool gotCredentials = false;
 
-const char* mqtt_server = "192.168.1.133";
+const char* mqtt_server = "";
 WiFiClient espClient;
 PubSubClient client(espClient);
+uint16_t port = 9001;
 
 void readMacAddress(){
   uint8_t baseMac[6];
@@ -61,13 +62,27 @@ void blinkColor(int red, int green, int blue, int delayTime = 500) {
 
 void reconnect() {
   while (!client.connected()) {
-    client.connect(hostname);
+    client.connect(hostname, "kitty_mqtt", "password");
   }
+}
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  StaticJsonDocument<256> doc;
+
+  deserializeJson(doc, payload, length);
+  int waterLevel = doc["water_level"];
+  Serial.print("Water Level: ");
+  Serial.println(waterLevel);
+
 }
 
 void signalNoWifiConnection() {
   blinkColor(255, 0, 0);
   blinkColor(0, 0, 255);
+  
   Serial.println("No Wi-Fi connection!");
   Serial.println("Reconnecting...");
   
@@ -152,12 +167,11 @@ void setup() {
     Serial.println("Waiting for credentials...");
   }
   server.stop();
-  dnsServer.stop();
 
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin("kitty-lab", "kittyplant", 0, NULL, true);
 
   readMacAddress();
 
@@ -170,8 +184,11 @@ void setup() {
   Serial.println(WiFi.localIP());
 
 
-  client.setServer(mqtt_server, 1883);
-  client.connect(hostname);
+  client.setServer(mqtt_server, port);
+  client.connect(hostname, "username", "password");
+  // Just for testing, remove later
+  client.setCallback(callback);
+  client.subscribe(topic);
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
@@ -194,9 +211,12 @@ void loop() {
     int realValue = 100 - map(sensorValue, 0, 4095, 0, 100);
     Serial.printf("%d%%\n", realValue);
 
-    char* msg;
-    snprintf (msg, MSG_BUFFER_SIZE, "{\"water_level\": \"%d\"}", realValue);
-    client.publish(hostname, msg, true);
+    char buffer[256];
+    JsonDocument doc;
+    doc["water_level"] = realValue;
+
+    size_t n = serializeJson(doc, buffer);
+    client.publish(topic, buffer, n);
 
     delay(1000); 
   }
