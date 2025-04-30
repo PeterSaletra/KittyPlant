@@ -90,8 +90,14 @@ docker run --name kittyplant_db -e POSTGRES_USER=kitty -e POSTGRES_PASSWORD=pass
 #### Mqtt broker
 
 ```
- mosquitto_passwd -c conf/mosquitto/passwd_file username
-t
+mosquitto_passwd -c conf/mosquitto/passwd_file username
+```
+
+#### Nginx
+
+```
+mkdir -p certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./certs/nginx.key -out ./certs/nginx.crt
 ```
 
 #### Frontend setup
