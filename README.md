@@ -59,6 +59,8 @@ This project combines hardware and software components to create a seamless expe
     - Arduino Framework
     - C++
     - [PlatformIO](https://platformio.org/)
+    - [MQTTClient](https://github.com/256dpi/arduino-mqtt)
+    - [ArduinoJson](https://arduinojson.org/)
  
  - Web Server
     - [Nginx](https://nginx.org/)
