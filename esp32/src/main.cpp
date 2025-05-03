@@ -1,123 +1,40 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <esp_wifi.h>
-#include <WiFiMulti.h>
-#include <WebServer.h>
-#include <PubSubClient.h>
-#include <DNSServer.h>
-#include <HTTPClient.h>
-#include "WebPage.h"
-#include "WiFiCredentials.h"
+#include <MQTTClient.h>
+#include "config.h"
+#include "helpers.h"
+#include "wifi_portal.h"
 
-#define PIN_RED    23 // GPIO23
-#define PIN_GREEN  22 // GPIO22
-#define PIN_BLUE   21 // GPIO21
-#define PIN_SENSOR A0 // SVP
 
-const char* hostname = "kp-0001";
-const char* topic = "kp-0001/data";
-
-const char* ssidAP = "Test";
-const char* passwordAP = "testtest";
-
-DNSServer dnsServer;
-WebServer server(80);
-
-String ssid;
-String password;
-
-bool gotCredentials = false;
-
-const char* mqtt_server = "";
 WiFiClient espClient;
-PubSubClient client(espClient);
-uint16_t port = 9001;
+MQTTClient client(512);
 
-void readMacAddress(){
-  uint8_t baseMac[6];
-  esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
-  if (ret == ESP_OK) {
-    Serial.print("Base MAC Address: ");
-    Serial.printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
-                  baseMac[0], baseMac[1], baseMac[2],
-                  baseMac[3], baseMac[4], baseMac[5]);
-  } else {
-    Serial.println("Failed to read MAC address");
-  }
-}
-
-void setColor(int red, int green, int blue) {
-  analogWrite(PIN_RED,   red);
-  analogWrite(PIN_GREEN, green);
-  analogWrite(PIN_BLUE,  blue);
-}
-
-void blinkColor(int red, int green, int blue, int delayTime = 500) {
-  setColor(red, green, blue);
-  delay(delayTime);
-  setColor(0, 0, 0);
-  delay(delayTime);
-}
 
 void reconnect() {
   while (!client.connected()) {
-    client.connect(hostname, "kitty_mqtt", "password");
+    client.connect(hostname, mqtt_user, mqtt_password);
   }
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+
+void callback(String &topic, String &payload) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  StaticJsonDocument<256> doc;
 
-  deserializeJson(doc, payload, length);
-  int waterLevel = doc["water_level"];
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, payload);
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
   Serial.print("Water Level: ");
-  Serial.println(waterLevel);
-
+  Serial.println(doc["water_level"].as<int>());
+  Serial.println("Message received!");
 }
 
-void signalNoWifiConnection() {
-  blinkColor(255, 0, 0);
-  blinkColor(0, 0, 255);
-  
-  Serial.println("No Wi-Fi connection!");
-  Serial.println("Reconnecting...");
-  
-  WiFi.disconnect();
-  WiFi.begin(SSID, PASSWORD);
-
-  int retryCount = 0;
-  while (WiFi.status() != WL_CONNECTED && retryCount < 10) {
-    blinkColor(255, 0, 0);
-    blinkColor(0, 0, 255); 
-    Serial.print(".");
-    retryCount++;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\nReconnected to Wi-Fi!");
-    Serial.print("ESP32 IP Address: ");
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("\nFailed to reconnect to Wi-Fi.");
-  }
-}
-
-void hanndlePage(){
-  server.send(200, "text/html", webpage);   
-}
-
-void handleConnect(){
-  ssid = server.arg("ssid");
-  password = server.arg("password");
-
-  server.send(200, "text/html", connecting_page);
-  delay(1000);
-  gotCredentials = true;
-}
 
 void setup() {
   Serial.begin(115200);
@@ -129,44 +46,8 @@ void setup() {
   WiFi.mode(WIFI_AP_STA);
 
   WiFi.softAP(ssidAP, passwordAP);
-  Serial.println("Access Point started");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.softAPIP());
-  dnsServer.start(53, "*", WiFi.softAPIP());
-
-  server.on("/", hanndlePage);
-  server.on("/connect", HTTP_POST, handleConnect);
-  server.on("/generate_204", []() {
-    server.sendHeader("Location", "/");
-    server.send(302, "text/plain", "");
-  });
   
-  // Apple captive portal trigger
-  server.on("/hotspot-detect.html", []() {
-    server.send(200, "text/html", webpage);
-  });
-  
-  // Windows captive portal trigger
-  server.on("/ncsi.txt", []() {
-    server.send(200, "text/plain", "Microsoft NCSI");
-  });
-  server.on("/connecttest.txt", []() {
-    server.send(200, "text/plain", "This is not Microsoft");
-  });
-  
-  server.on("/redirect", []() {
-    server.sendHeader("Location", "/");
-    server.send(302, "text/plain", "");
-  });
-  server.begin();
-
-  while(!gotCredentials){
-    dnsServer.processNextRequest();
-    server.handleClient();
-    blinkColor(255, 255, 255);
-    Serial.println("Waiting for credentials...");
-  }
-  server.stop();
+  run_wifi_portal();
 
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
@@ -183,17 +64,20 @@ void setup() {
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
 
+  // espClient.setInsecure(); // Disable SSL certificate verification (not recommended for production)
 
-  client.setServer(mqtt_server, port);
-  client.connect(hostname, "username", "password");
+  client.begin(mqtt_server, port, espClient);
+  client.setOptions(60, true, 60);
+  client.connect(hostname, mqtt_user, mqtt_password);
   // Just for testing, remove later
-  client.setCallback(callback);
+  client.onMessage(callback);
   client.subscribe(topic);
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
 }
+
 
 void loop() {
   if (!client.connected()) {
@@ -202,7 +86,7 @@ void loop() {
   client.loop();
 
   if (WiFi.status() != WL_CONNECTED) {
-    signalNoWifiConnection();
+    signalNoWifiConnection(ssid, password);
   } else {
     int sensorValue = analogRead(PIN_SENSOR);
     Serial.print("Sensor Value: ");
@@ -221,4 +105,3 @@ void loop() {
     delay(1000); 
   }
 }
-

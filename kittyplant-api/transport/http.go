@@ -18,7 +18,6 @@ import (
 
 type HttpServer struct {
 	router *gin.Engine
-	// mqtt   *mqtt.MqttClient
 	db *store.Database
 	c  *controllers.Controllers
 }
@@ -41,7 +40,6 @@ func (h *HttpServer) PrepareServer() {
 	}))
 	h.router = r
 	h.prepareRoutes()
-	// h.mqtt = mqtt.NewMqttClient(config.AppConfig.Broker, config.AppConfig.RedisAddr)
 }
 
 func (h *HttpServer) Serve() {
@@ -70,6 +68,7 @@ func (h *HttpServer) Serve() {
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
 
+	
 	srv.Shutdown(ctx)
 	log.Println("server shutting down")
 }
