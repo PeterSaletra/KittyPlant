@@ -67,7 +67,7 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	c.mqtt.Subscribe(newDevice.DeviceID)
 	// device := store.Device{}
 
 	// err := c.DB.AddNewDevice(&device)
