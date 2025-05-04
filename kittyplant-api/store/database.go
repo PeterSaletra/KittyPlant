@@ -51,6 +51,29 @@ func (d *Database) Migrate() error {
 	if err != nil {
 		log.Fatalf("Cannot migrate table Plants: %s", err)
 	}
+
+	initialPlants := []Plant{
+		{Name: "Alokazja", MinHydLevel: 40, MaxHydLevel: 65},
+		{Name: "Aloes Zwyczajny", MinHydLevel: 5, MaxHydLevel: 20},
+		{Name: "Chamedora Wytworna", MinHydLevel: 35, MaxHydLevel: 60},
+		{Name: "Figowiec Dębolistny", MinHydLevel: 45, MaxHydLevel: 70},
+		{Name: "Figowiec Sprężysty", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Haworsja", MinHydLevel: 15, MaxHydLevel: 40},
+		{Name: "Monstera Dziurawa", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Monstera Perforowana", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Sansewieria Gwinejska", MinHydLevel: 5, MaxHydLevel: 25},
+		{Name: "Skrzydłokwiat", MinHydLevel: 50, MaxHydLevel: 75},
+		{Name: "Zamiokulkas Zamiolistny", MinHydLevel: 10, MaxHydLevel: 30},
+		{Name: "Begonia Koralowa", MinHydLevel: 35, MaxHydLevel: 60},
+	}
+
+	for _, plant := range initialPlants {
+		if err := d.DB.FirstOrCreate(&plant, Plant{Name: plant.Name}).Error; err != nil {
+			log.Fatalf("Cannot insert initial data into Plants table: %s", err)
+		}
+	}
+	fmt.Print("Initial data inserted into Plants table\n")
+
 	fmt.Print("Plants table migrated\n")
 	err = d.DB.AutoMigrate(&Device{}) // Devices table must be created before Data and Relations
 	if err != nil {

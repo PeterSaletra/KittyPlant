@@ -14,6 +14,7 @@ function PlantsPage() {
   const [deviceName, setDeviceName] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState('');
+  const [newName, setNewName] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
   const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
@@ -65,16 +66,21 @@ function PlantsPage() {
 
   const handleSubmitNewDevice = () => {
     // Example: Send new device data to the server
-    const newDevice = {
-      name: newDeviceName,
-      plant: newDevicePlant,
-      waterLevelMin: isCustomPlant ? customWaterLevels[0] : undefined,
-      waterLevelMax: isCustomPlant ? customWaterLevels[1] : undefined,
-      customPlant: isCustomPlant ? customPlantName : undefined,
+    const newDevice: any = {
+      device_id: newDeviceName,
+      name: newName,
+      plant: isCustomPlant ? customPlantName : newDevicePlant,
     };
 
+    if (isCustomPlant) {
+      newDevice.water_level_min = customWaterLevels[0];
+      newDevice.water_level_max = customWaterLevels[1];
+    }
+
+    console.log('New device data:', newDevice);
+
     axios
-      .post('/api/v1/devices', newDevice)
+      .post('/api/v1/devices', newDevice, { withCredentials: true })
       .then((response) => {
         console.log('Device added:', response.data);
         handleUpdateWaterLevel(); // Refresh the device list
@@ -103,11 +109,18 @@ function PlantsPage() {
         <div className="modal">
           <div className="modal-content">
             <h2>ADD NEW DEVICE</h2>
-            <label>DEVICE NAME</label>
+            <label>DEVICE ID</label>
+              <input
+                type="text"
+                value={newName}
+                placeholder='DEVICE ID'
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <label>CUSTOM DEVICE NAME</label>
               <input
                 type="text"
                 value={newDeviceName}
-                placeholder='DEVICE NAME'
+                placeholder='CUSTOM DEVICE NAME'
                 onChange={(e) => setNewDeviceName(e.target.value)}
               />
             <label>PLANT</label>
