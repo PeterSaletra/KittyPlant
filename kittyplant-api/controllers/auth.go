@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"kittyplant-api/store"
+	"kittyplant-api/utils"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -25,21 +26,21 @@ func (c *Controllers) Login(ctx *gin.Context) {
 		return
 	}
 
-	// var user store.User
-	// err := c.DB.GetUserByName(&user, json.User)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-	// 	return
-	// }
-
-	// if !utils.VerifyPasswordHash(json.Password, user.Password) {
-	// 	ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-	// 	return
-	// }
-
-	if json.User != "admin" && json.Password != "password" {
-		ctx.JSON(http.StatusForbidden, gin.H{"erorr": "unauthorized"})
+	var user store.User
+	err := c.DB.GetUserByName(&user, json.User)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
 	}
+
+	if !utils.VerifyPasswordHash(json.Password, user.Password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	// if json.User != "admin" && json.Password != "password" {
+	// 	ctx.JSON(http.StatusForbidden, gin.H{"erorr": "unauthorized"})
+	// }
 
 	session.Set(userSessionKey, json.User)
 	if err := session.Save(); err != nil {
@@ -47,9 +48,9 @@ func (c *Controllers) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user": json.User})
+	// ctx.JSON(http.StatusOK, gin.H{"user": json.User})
 
-	// ctx.JSON(http.StatusOK, gin.H{"user": user.Name})
+	ctx.JSON(http.StatusOK, gin.H{"user": user.Name})
 }
 
 func (c *Controllers) Register(ctx *gin.Context) {
