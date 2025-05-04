@@ -79,16 +79,16 @@ function PlantsPage() {
 
     console.log('New device data:', newDevice);
 
-    // axios
-    //   .post('/api/v1/devices', newDevice, { withCredentials: true })
-    //   .then((response) => {
-    //     console.log('Device added:', response.data);
-    //     handleUpdateWaterLevel(); // Refresh the device list
-    //     setIsModalOpen(false); // Close the modal
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error adding device:', error);
-    //   });
+    axios
+      .post('/api/v1/devices', newDevice, { withCredentials: true })
+      .then((response) => {
+        console.log('Device added:', response.data);
+        handleUpdateWaterLevel(); // Refresh the device list
+        setIsModalOpen(false); // Close the modal
+      })
+      .catch((error) => {
+        console.error('Error adding device:', error);
+      });
   };
 
   return (
@@ -109,14 +109,14 @@ function PlantsPage() {
         <div className="modal">
           <div className="modal-content">
             <h2>ADD NEW DEVICE</h2>
-            <label>DEVICE NAME</label>
+            <label>DEVICE ID</label>
               <input
                 type="text"
                 value={newName}
                 placeholder='DEVICE ID'
                 onChange={(e) => setNewName(e.target.value)}
               />
-              <label>DEVICE NAME</label>
+              <label>CUSTOM DEVICE NAME</label>
               <input
                 type="text"
                 value={newDeviceName}

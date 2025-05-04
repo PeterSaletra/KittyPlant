@@ -53,22 +53,22 @@ func (d *Database) Migrate() error {
 	}
 
 	initialPlants := []Plant{
-		{ID: 1, Name: "Alokazja", MinHydLevel: 40, MaxHydLevel: 65},
-		{ID: 2, Name: "Aloes Zwyczajny", MinHydLevel: 5, MaxHydLevel: 20},
-		{ID: 3, Name: "Chamedora Wytworna", MinHydLevel: 35, MaxHydLevel: 60},
-		{ID: 4, Name: "Figowiec Dębolistny", MinHydLevel: 45, MaxHydLevel: 70},
-		{ID: 5, Name: "Figowiec Sprężysty", MinHydLevel: 30, MaxHydLevel: 55},
-		{ID: 6, Name: "Haworsja", MinHydLevel: 15, MaxHydLevel: 40},
-		{ID: 7, Name: "Monstera Dziurawa", MinHydLevel: 30, MaxHydLevel: 55},
-		{ID: 8, Name: "Monstera Perforowana", MinHydLevel: 30, MaxHydLevel: 55},
-		{ID: 9, Name: "Sansewieria Gwinejska", MinHydLevel: 5, MaxHydLevel: 25},
-		{ID: 10, Name: "Skrzydłokwiat", MinHydLevel: 50, MaxHydLevel: 75},
-		{ID: 11, Name: "Zamiokulkas Zamiolistny", MinHydLevel: 10, MaxHydLevel: 30},
-		{ID: 12, Name: "Begonia Koralowa", MinHydLevel: 35, MaxHydLevel: 60},
+		{Name: "Alokazja", MinHydLevel: 40, MaxHydLevel: 65},
+		{Name: "Aloes Zwyczajny", MinHydLevel: 5, MaxHydLevel: 20},
+		{Name: "Chamedora Wytworna", MinHydLevel: 35, MaxHydLevel: 60},
+		{Name: "Figowiec Dębolistny", MinHydLevel: 45, MaxHydLevel: 70},
+		{Name: "Figowiec Sprężysty", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Haworsja", MinHydLevel: 15, MaxHydLevel: 40},
+		{Name: "Monstera Dziurawa", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Monstera Perforowana", MinHydLevel: 30, MaxHydLevel: 55},
+		{Name: "Sansewieria Gwinejska", MinHydLevel: 5, MaxHydLevel: 25},
+		{Name: "Skrzydłokwiat", MinHydLevel: 50, MaxHydLevel: 75},
+		{Name: "Zamiokulkas Zamiolistny", MinHydLevel: 10, MaxHydLevel: 30},
+		{Name: "Begonia Koralowa", MinHydLevel: 35, MaxHydLevel: 60},
 	}
 
 	for _, plant := range initialPlants {
-		if err := d.DB.FirstOrCreate(&plant, Plant{ID: plant.ID}).Error; err != nil {
+		if err := d.DB.FirstOrCreate(&plant, Plant{Name: plant.Name}).Error; err != nil {
 			log.Fatalf("Cannot insert initial data into Plants table: %s", err)
 		}
 	}

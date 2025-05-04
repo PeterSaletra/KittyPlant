@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type NewDevice struct {
@@ -83,36 +84,44 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		return
 	}
 
+	var plant store.Plant
+	err = c.DB.GetPlant(&plant, newDevice.Plant)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Plant does not exist, create a new one
+			if newDevice.WaterLevelMin != nil && newDevice.WaterLevelMax != nil {
+				plant = store.Plant{
+					Name:        newDevice.Plant,
+					MinHydLevel: *newDevice.WaterLevelMin,
+					MaxHydLevel: *newDevice.WaterLevelMax,
+				}
+
+				err = c.DB.AddPlant(&plant)
+				if err != nil {
+					ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add plant"})
+					return
+				}
+			} else {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Plant does not exist and water levels are not provided"})
+				return
+			}
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plant"})
+			return
+		}
+	}
+
 	device := store.Device{
 		DeviceName: newDevice.DeviceID,
+		Name:       newDevice.Name,
+		PlantID:    plant.ID,
+		Plant:      plant,
 	}
 
 	err = c.DB.AddDevice(newDevice.DeviceID, &device)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add device"})
 		return
-	}
-
-	if newDevice.WaterLevelMin != nil && newDevice.WaterLevelMax != nil {
-		plant := store.Plant{
-			Name:        newDevice.Plant,
-			MinHydLevel: *newDevice.WaterLevelMin,
-			MaxHydLevel: *newDevice.WaterLevelMax,
-			Devices:     []store.Device{device},
-		}
-
-		err = c.DB.AddPlant(&plant)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add plant"})
-			return
-		}
-
-	} else {
-		err = c.DB.AssignDeviceToPlant(newDevice.Plant, &device)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign device to plant"})
-			return
-		}
 	}
 
 	err = c.DB.AssignDeviceToUser(userdb.ID, device.ID)
