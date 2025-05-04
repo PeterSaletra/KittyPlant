@@ -13,7 +13,6 @@ type Plant struct {
 	MaxHydLevel int    `json:"max_hyd_level"`
 }
 
-// GetPlants queries the database for all plants.
 func (d *Database) GetPlants(plants *[]Plant) (err error) {
 	if err = d.DB.Find(plants).Error; err != nil {
 		return err
@@ -23,18 +22,15 @@ func (d *Database) GetPlants(plants *[]Plant) (err error) {
 }
 
 func (d *Database) AddPlant(plant *Plant) (err error) {
-	// Check if the plant already exists
 	var existingPlant Plant
 	err = d.DB.Where("name = ?", plant.Name).First(&existingPlant).Error
 	if err == nil {
-		// Plant already exists
+
 		return fmt.Errorf("plant with name '%s' already exists", plant.Name)
 	} else if err != gorm.ErrRecordNotFound {
-		// Some other error occurred
 		return err
 	}
 
-	// Plant does not exist, proceed with insertion
 	if err = d.DB.Create(plant).Error; err != nil {
 		return err
 	}

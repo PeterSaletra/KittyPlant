@@ -3,7 +3,6 @@ import Hero from '../components/Hero'
 import Features from '../components/Features'
 import ProductInfo from '../components/ProductInfo'
 import Footer from '../components/Footer'
-// import leafbottom from './assets/leaf-bottom.png'
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
 

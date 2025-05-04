@@ -64,12 +64,9 @@ void setup() {
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
 
-  // espClient.setInsecure(); // Disable SSL certificate verification (not recommended for production)
-
   client.begin(mqtt_server, port, espClient);
   client.setOptions(60, true, 60);
   client.connect(hostname, mqtt_user, mqtt_password);
-  // Just for testing, remove later
   client.onMessage(callback);
   client.subscribe(topic);
 

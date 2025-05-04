@@ -9,9 +9,8 @@ import (
 )
 
 func (h *HttpServer) prepareRoutes() {
-	// recover from panics
 	h.router.Use(gin.Recovery())
-	// session management
+
 	h.router.Use(sessions.Sessions("session",
 		cookie.NewStore([]byte(config.AppConfig.JwtSecret)),
 	))

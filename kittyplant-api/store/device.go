@@ -17,7 +17,6 @@ type Device struct {
 	Relations []Relation `gorm:"foreignKey:DeviceID;references:ID"`
 }
 
-// GetDevices queries the database for all devices.
 func (d *Database) GetDevices(devices *[]Device) (err error) {
 	if err = d.DB.Find(devices).Error; err != nil {
 		return err

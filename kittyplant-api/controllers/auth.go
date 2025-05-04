@@ -38,17 +38,11 @@ func (c *Controllers) Login(ctx *gin.Context) {
 		return
 	}
 
-	// if json.User != "admin" && json.Password != "password" {
-	// 	ctx.JSON(http.StatusForbidden, gin.H{"erorr": "unauthorized"})
-	// }
-
 	session.Set(userSessionKey, json.User)
 	if err := session.Save(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	// ctx.JSON(http.StatusOK, gin.H{"user": json.User})
 
 	ctx.JSON(http.StatusOK, gin.H{"user": user.Name})
 }

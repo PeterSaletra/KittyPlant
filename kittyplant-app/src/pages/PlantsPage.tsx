@@ -49,12 +49,12 @@ function PlantsPage() {
   , []);
 
   const handleAddDevice = () => {
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true);
       try{
       axios.get('/api/v1/plants' , { withCredentials: true })
       .then((response) => {
         const plants = response.data.plants.map((plant: any) => plant.name);
-        setPlantsName(plants)// Set the first plant as default
+        setPlantsName(plants)
       })
     }catch(error) {
       console.error("Error fetching plants:", error);
@@ -62,11 +62,10 @@ function PlantsPage() {
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false); // Close the modal
+    setIsModalOpen(false);
   };
 
   const handleSubmitNewDevice = () => {
-    // Example: Send new device data to the server
     const newDevice: any = {
       device_id: newID,
       name: newDeviceName,
@@ -84,8 +83,8 @@ function PlantsPage() {
       .post('/api/v1/devices', newDevice, { withCredentials: true })
       .then((response) => {
         console.log('Device added:', response.data);
-        handleUpdateWaterLevel(); // Refresh the device list
-        setIsModalOpen(false); // Close the modal
+        handleUpdateWaterLevel();
+        setIsModalOpen(false);
       })
       .catch((error) => {
         console.error('Error adding device:', error);

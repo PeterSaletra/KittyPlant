@@ -57,7 +57,6 @@ func (m *MqttClient) Subscribe(topic string) {
 	token := m.client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 
-		// Save the message to Redis
 		ctx := context.Background()
 		err := m.redis.Set(ctx, msg.Topic(), string(msg.Payload()), 0).Err()
 		if err != nil {
@@ -70,7 +69,6 @@ func (m *MqttClient) Subscribe(topic string) {
 	}
 }
 
-// Disconnect disconnects the MQTT client.
 func (m *MqttClient) Disconnect() {
 	m.client.Disconnect(250)
 }

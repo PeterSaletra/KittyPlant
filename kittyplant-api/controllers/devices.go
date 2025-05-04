@@ -44,18 +44,18 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 
 	for _, device := range devicesdb {
 		redisKey := device.DeviceName + "/data"
-		log.Printf("Topic: %s", redisKey)
+
 		deviceData, err := c.redis.Get(ctx, redisKey).Result()
 
 		var waterLevel int
 		if err != nil {
-			// Handle Redis error (e.g., key not found)
+
 			log.Printf(err.Error())
 			waterLevel = 0
 		} else {
-			log.Printf("Data from redis: %s", deviceData)
+
 			var redisData map[string]interface{}
-			redisData = make(map[string]interface{}) // Initialize the map
+			redisData = make(map[string]interface{})
 
 			if err := json.Unmarshal([]byte(deviceData), &redisData); err != nil {
 				log.Printf("Failed to unmarshal Redis data: %s", err)
@@ -66,7 +66,7 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 			}
 
 		}
-		log.Printf("Water level: %d", waterLevel)
+
 		devices = append(devices, map[string]interface{}{
 			"name":       device.DeviceName,
 			"status":     "online",
@@ -103,7 +103,7 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 	err = c.DB.GetPlant(&plant, newDevice.Plant)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Plant does not exist, create a new one
+
 			if newDevice.WaterLevelMin != nil && newDevice.WaterLevelMax != nil {
 				plant = store.Plant{
 					Name:        newDevice.Plant,
