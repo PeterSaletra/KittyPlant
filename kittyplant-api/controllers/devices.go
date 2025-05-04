@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
 	"kittyplant-api/store"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -18,49 +20,62 @@ type NewDevice struct {
 }
 
 func (c *Controllers) GetDevices(ctx *gin.Context) {
-	// var devices []store.Device
-	// err := c.DB.GetDevicesAndWaterLevels(&devices)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch devices"})
-	// 	return
-	// }
+	session := sessions.Default(ctx)
 
-	// log.Printf("Fetched devices: %v", devices)
+	user := session.Get(userSessionKey)
+	if user == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var userdb store.User
+	err := c.DB.GetUserByName(&userdb, user.(string))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+		return
+	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"devices": []map[string]interface{}{
-			{
-				"name":       "device1",
-				"status":     "online",
-				"plant":      "plant1",
-				"waterLevel": 80,
-			},
-			{
-				"name":       "device2",
-				"status":     "online",
-				"plant":      "plant1",
-				"waterLevel": 60,
-			},
-			{
-				"name":       "device3",
-				"status":     "online",
-				"plant":      "plant1",
-				"waterLevel": 20,
-			},
-			{
-				"name":       "device4",
-				"status":     "online",
-				"plant":      "plant1",
-				"waterLevel": 40,
-			},
-			{
-				"name":       "device5",
-				"status":     "online",
-				"plant":      "plant1",
-				"waterLevel": 0,
-			},
-		},
-	})
+	var devicesdb []store.Device
+	err = c.DB.GetDevicesAssignedToUser(&devicesdb, userdb.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user devices"})
+	}
+
+	var devices []map[string]interface{}
+
+	for _, device := range devicesdb {
+		redisKey := device.DeviceName + "/data"
+		log.Printf("Topic: %s", redisKey)
+		deviceData, err := c.redis.Get(ctx, redisKey).Result()
+
+		var waterLevel int
+		if err != nil {
+			// Handle Redis error (e.g., key not found)
+			log.Printf(err.Error())
+			waterLevel = 0
+		} else {
+			log.Printf("Data from redis: %s", deviceData)
+			var redisData map[string]interface{}
+			redisData = make(map[string]interface{}) // Initialize the map
+
+			if err := json.Unmarshal([]byte(deviceData), &redisData); err != nil {
+				log.Printf("Failed to unmarshal Redis data: %s", err)
+			} else {
+				if wl, ok := redisData["water_level"].(float64); ok {
+					waterLevel = int(wl)
+				}
+			}
+
+		}
+		log.Printf("Water level: %d", waterLevel)
+		devices = append(devices, map[string]interface{}{
+			"name":       device.DeviceName,
+			"status":     "online",
+			"plant":      device.Plant.Name,
+			"waterLevel": waterLevel,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"devices": devices})
 }
 
 func (c *Controllers) AddNewDevice(ctx *gin.Context) {
