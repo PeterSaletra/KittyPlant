@@ -14,7 +14,7 @@ function PlantsPage() {
   const [deviceName, setDeviceName] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState('');
-  const [newName, setNewName] = useState('');
+  const [newID, setID] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
   const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
@@ -29,6 +29,7 @@ function PlantsPage() {
         setWaterLevels(levels);
         const name = response.data.devices.map((device: any) => device.name);
         setDeviceName(name);
+        console.log(response.data)
       })
       }catch(error) {
         console.error("Error fetching water level:", error);
@@ -67,8 +68,8 @@ function PlantsPage() {
   const handleSubmitNewDevice = () => {
     // Example: Send new device data to the server
     const newDevice: any = {
-      device_id: newDeviceName,
-      name: newName,
+      device_id: newID,
+      name: newDeviceName,
       plant: isCustomPlant ? customPlantName : newDevicePlant,
     };
 
@@ -112,9 +113,9 @@ function PlantsPage() {
             <label>DEVICE ID</label>
               <input
                 type="text"
-                value={newName}
+                value={newID}
                 placeholder='DEVICE ID'
-                onChange={(e) => setNewName(e.target.value)}
+                onChange={(e) => setID(e.target.value)}
               />
               <label>CUSTOM DEVICE NAME</label>
               <input

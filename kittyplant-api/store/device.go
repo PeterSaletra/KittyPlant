@@ -26,10 +26,11 @@ func (d *Database) GetDevices(devices *[]Device) (err error) {
 	return nil
 }
 
-func (d *Database) GetDevicesAndWaterLevels(devices *[]Device) (err error) {
-	if err = d.DB.Preload("Data").Preload("Plant").Find(devices).Error; err != nil {
+func (d *Database) GetDevicesAssignedToUser(devices *[]Device, userID uint) (err error) {
+	if err = d.DB.Joins("JOIN relations ON devices.id = relations.device_id").Where("relations.user_id = ?", userID).Find(devices).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
