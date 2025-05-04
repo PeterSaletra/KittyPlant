@@ -17,3 +17,22 @@ func (d *Database) GetPlants(plants *[]Plant) (err error) {
 
 	return nil
 }
+
+func (d *Database) AddPlant(plants *Plant) (err error) {
+	if err = d.DB.Create(plants).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Database) AssignDeviceToPlant(plantName string, device *Device) (err error) {
+	var plant Plant
+	err = d.DB.Where("name = ?", plantName).First(&plant).Error
+	if err != nil {
+		return err
+	}
+
+	plant.Devices = append(plant.Devices, *device)
+	return d.DB.Save(&plant).Error
+}

@@ -33,7 +33,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot connect to mqtt broker: %s\n", err)
 	}
-	mqtt.Subscribe("kp-0001/data")
 	ctrl := controllers.NewControllers(db, redis, mqtt)
 
 	http := transport.NewHttpServer(db, ctrl)
