@@ -14,6 +14,7 @@ function PlantsPage() {
   const [deviceName, setDeviceName] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState('');
+  const [newName, setNewName] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
   const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
@@ -65,24 +66,29 @@ function PlantsPage() {
 
   const handleSubmitNewDevice = () => {
     // Example: Send new device data to the server
-    const newDevice = {
-      name: newDeviceName,
-      plant: newDevicePlant,
-      waterLevelMin: isCustomPlant ? customWaterLevels[0] : undefined,
-      waterLevelMax: isCustomPlant ? customWaterLevels[1] : undefined,
-      customPlant: isCustomPlant ? customPlantName : undefined,
+    const newDevice: any = {
+      device_id: newDeviceName,
+      name: newName,
+      plant: isCustomPlant ? customPlantName : newDevicePlant,
     };
 
-    axios
-      .post('/api/v1/devices', newDevice)
-      .then((response) => {
-        console.log('Device added:', response.data);
-        handleUpdateWaterLevel(); // Refresh the device list
-        setIsModalOpen(false); // Close the modal
-      })
-      .catch((error) => {
-        console.error('Error adding device:', error);
-      });
+    if (isCustomPlant) {
+      newDevice.water_level_min = customWaterLevels[0];
+      newDevice.water_level_max = customWaterLevels[1];
+    }
+
+    console.log('New device data:', newDevice);
+
+    // axios
+    //   .post('/api/v1/devices', newDevice, { withCredentials: true })
+    //   .then((response) => {
+    //     console.log('Device added:', response.data);
+    //     handleUpdateWaterLevel(); // Refresh the device list
+    //     setIsModalOpen(false); // Close the modal
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error adding device:', error);
+    //   });
   };
 
   return (
@@ -106,8 +112,15 @@ function PlantsPage() {
             <label>DEVICE NAME</label>
               <input
                 type="text"
+                value={newName}
+                placeholder='DEVICE ID'
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <label>DEVICE NAME</label>
+              <input
+                type="text"
                 value={newDeviceName}
-                placeholder='DEVICE NAME'
+                placeholder='CUSTOM DEVICE NAME'
                 onChange={(e) => setNewDeviceName(e.target.value)}
               />
             <label>PLANT</label>

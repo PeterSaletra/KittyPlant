@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"kittyplant-api/store"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,9 +12,8 @@ type NewDevice struct {
 	DeviceID      string `json:"device_id" binding:"required"`
 	Name          string `json:"name" binding:"required"`
 	Plant         string `json:"plant" binding:"required"`
-	WaterLevelMax int    `json:"water_level_max" binding:"required"`
-	WaterLevelMin int    `json:"water_level_min" binding:"required"`
-	Status        string `json:"status" binding:"required"`
+	WaterLevelMin *int   `json:"water_level_min", omitempty"`
+	WaterLevelMax *int   `json:"water_level_max", omitempty"`
 }
 
 func (c *Controllers) GetDevices(ctx *gin.Context) {
@@ -62,20 +63,65 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 }
 
 func (c *Controllers) AddNewDevice(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+
 	var newDevice NewDevice
 	if err := ctx.ShouldBindJSON(&newDevice); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// device := store.Device{}
+	user := session.Get(userSessionKey)
+	if user == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var userdb store.User
+	err := c.DB.GetUserByName(&userdb, user.(string))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+		return
+	}
 
-	// err := c.DB.AddNewDevice(&device)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add device"})
-	// 	return
-	// }
+	device := store.Device{
+		DeviceName: newDevice.DeviceID,
+	}
+
+	err = c.DB.AddDevice(newDevice.DeviceID, &device)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add device"})
+		return
+	}
+
+	if newDevice.WaterLevelMin != nil && newDevice.WaterLevelMax != nil {
+		plant := store.Plant{
+			Name:        newDevice.Plant,
+			MinHydLevel: *newDevice.WaterLevelMin,
+			MaxHydLevel: *newDevice.WaterLevelMax,
+			Devices:     []store.Device{device},
+		}
+
+		err = c.DB.AddPlant(&plant)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add plant"})
+			return
+		}
+
+	} else {
+		err = c.DB.AssignDeviceToPlant(newDevice.Plant, &device)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign device to plant"})
+			return
+		}
+	}
+
+	err = c.DB.AssignDeviceToUser(userdb.ID, device.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign device to user"})
+		return
+	}
+
+	c.mqtt.Subscribe(newDevice.DeviceID + "/data")
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Device added successfully"})
-
 }

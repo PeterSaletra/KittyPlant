@@ -12,35 +12,49 @@ import (
 type MqttClient struct {
 	client mqtt.Client
 	redis  *redis.Client
-	mu     sync.Mutex
+	mu     sync.Map
 }
 
-func NewMqttClient(broker string, redisAddr string) *MqttClient {
-	opts := mqtt.NewClientOptions().AddBroker(broker).SetClientID("kittyplant_mqtt_client")
+func NewMqttClient(broker string, redisClient *redis.Client) (*MqttClient, error) {
+	log.Printf("Connecting to MQTT broker at %s", broker)
+	opts := mqtt.NewClientOptions().
+		AddBroker(broker).
+		SetClientID("kittyplant_mqtt_client").
+		SetUsername("kitty_mqtt").
+		SetPassword("password")
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 	})
+	opts.OnConnect = func(c mqtt.Client) {
+		log.Println("Connected to MQTT broker")
+	}
+	opts.OnConnectionLost = func(c mqtt.Client, err error) {
+		log.Printf("Connection lost: %v", err)
+	}
+	opts.OnReconnecting = func(c mqtt.Client, options *mqtt.ClientOptions) {
+		log.Println("Reconnecting to MQTT broker")
+	}
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+		log.Printf("Failed to connect to MQTT broker: %v", token.Error())
+		return nil, token.Error()
 	}
-
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-	})
 
 	return &MqttClient{
 		client: client,
 		redis:  redisClient,
-	}
+	}, nil
 }
 
 func (m *MqttClient) Subscribe(topic string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	token := m.client.Subscribe(topic, 1, func(client mqtt.Client, msg mqtt.Message) {
+	_, loaded := m.mu.LoadOrStore(topic, true)
+	if loaded {
+		log.Printf("Already subscribed to topic %s", topic)
+		return
+	}
+	log.Printf("Subscribing to topic %s", topic)
+	token := m.client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 
 		// Save the message to Redis
