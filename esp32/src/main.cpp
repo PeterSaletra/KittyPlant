@@ -65,7 +65,6 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   client.begin(mqtt_server, port, espClient);
-  client.setOptions(60, true, 60);
   client.connect(hostname, mqtt_user, mqtt_password);
   client.onMessage(callback);
   client.subscribe(topic);
@@ -99,6 +98,6 @@ void loop() {
     size_t n = serializeJson(doc, buffer);
     client.publish(topic, buffer, n);
 
-    delay(1000); 
+    delay(5000); 
   }
 }

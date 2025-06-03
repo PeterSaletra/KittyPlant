@@ -2,6 +2,7 @@ package mqtt
 
 import (
 	"context"
+	"kittyplant-api/config"
 	"log"
 	"sync"
 
@@ -20,8 +21,8 @@ func NewMqttClient(broker string, redisClient *redis.Client) (*MqttClient, error
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
 		SetClientID("kittyplant_mqtt_client").
-		SetUsername("kitty_mqtt").
-		SetPassword("password")
+		SetUsername(config.AppConfig.BrokerUser).
+		SetPassword(config.AppConfig.BrokerPassword)
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 	})

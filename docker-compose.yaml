@@ -45,9 +45,7 @@ services:
       retries: 3
 
   backend:
-    build:
-      context: ./kittyplant-api
-      dockerfile: Dockerfile
+    image: ghcr.io/petersaletra/kittyplant-backend:latest
     ports:
       - 8000:$APP_PORT
     environment:
@@ -60,6 +58,8 @@ services:
       - DB_PASS=$DB_PASS
       - REDIS_HOST=$REDIS_HOST
       - BROKER=$BROKER
+      - BROKER_USER=$BROKER_USER
+      - BROKER_PASSWORD=$BROKER_PASSWORD
     volumes:
       - ./backend:/app
     networks:
@@ -74,9 +74,7 @@ services:
           condition: service_started
 
   frontend:
-    build:
-      context: ./kittyplant-app
-      dockerfile: Dockerfile
+    image: ghcr.io/petersaletra/kittyplant-frontend:latest
     ports:
       - "3000:3000"
     networks:
