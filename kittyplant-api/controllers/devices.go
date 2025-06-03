@@ -15,8 +15,8 @@ type NewDevice struct {
 	DeviceID      string `json:"device_id" binding:"required"`
 	Name          string `json:"name" binding:"required"`
 	Plant         string `json:"plant" binding:"required"`
-	WaterLevelMin *int   `json:"water_level_min", omitempty"`
-	WaterLevelMax *int   `json:"water_level_max", omitempty"`
+	WaterLevelMin *int   `json:"water_level_min,omitempty"`
+	WaterLevelMax *int   `json:"water_level_max,omitempty"`
 }
 
 func (c *Controllers) GetDevices(ctx *gin.Context) {

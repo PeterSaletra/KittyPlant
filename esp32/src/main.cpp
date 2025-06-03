@@ -52,7 +52,7 @@ void setup() {
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin("kitty-lab", "kittyplant", 0, NULL, true);
+  WiFi.begin(ssid, password, 0, NULL, true);
 
   readMacAddress();
 

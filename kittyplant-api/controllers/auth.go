@@ -47,6 +47,20 @@ func (c *Controllers) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": user.Name})
 }
 
+func (c *Controllers) Logout(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+
+	session.Delete(userSessionKey)
+
+	if err := session.Save(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.SetCookie("session", "", -1, "/", "", false, false)
+	ctx.Status(http.StatusOK)
+}
+
 func (c *Controllers) Register(ctx *gin.Context) {
 	var json AuthReq
 	if err := ctx.ShouldBindJSON(&json); err != nil {
