@@ -16,8 +16,8 @@ const Footer = () => {
         </div>
       </div>
       </div>
-      <img src={leafbottomleft} alt="Leaf Bottom Left" className="leaf-decoration bottom-left"/>
-      <img src={leafbottomright} alt="Leaf Bottom Right" className="leaf-decoration bottom-right"/>
+      <img src={leafbottomleft} alt="Leaf Bottom Left" className="absolute -z-1 h-auto w-1/4 bottom-0 left-0"/>
+      <img src={leafbottomright} alt="Leaf Bottom Right" className="absolute -z-1 h-auto w-1/4 bottom-0 right-0"/>
     </footer>
   )
 }

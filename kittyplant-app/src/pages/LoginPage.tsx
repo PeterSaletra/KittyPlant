@@ -1,18 +1,26 @@
 import { useState } from 'react';
 import axios from 'axios';
-import '../styles/LoginPage.css';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 
 function Login(){
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [username_form, setUsername_form] = useState<string>('');
     const [password_form, setPassword_form] = useState<string>('');
-
-    const handleRegister = () => {
-        navigate("/register")
-    }   
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -37,37 +45,65 @@ function Login(){
     }   
 
     return (
-        <div className='tmp'>
+        <div className="min-h-screen flex flex-col">
             <Header />
-            <div className="login-page">
-                <div className="form-container">
-                    <h1>Login into your account</h1>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="username">Username</label>
-                            <input type="text" id="username" 
-                            value={username_form} 
-                            onChange={(e) => setUsername_form(e.target.value)} 
-                            name="username" required placeholder='TYPE'/>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input type="password" id="password" 
-                            value={password_form} 
-                            onChange={(e) => setPassword_form(e.target.value)} 
-                            name="password" required placeholder='TYPE'/>
-                        </div>
-                        <div className='button-group'>
-                            {
-                                error && (
-                                    <div className='alert'>{error}</div>
-                                )
-                            }
-                            <button type="submit">LOG IN</button>
-                            <button onClick={handleRegister}>REGISTER</button>
-                        </div>
-                    </form>
-                </div>
+            <div className="h-full flex flex-col items-center justify-center m-auto">
+               <Tabs defaultValue="login" className="w-[400px] h-[400px]">
+                    <TabsList className='grid w-full grid-cols-2'>
+                        <TabsTrigger value="login">Login</TabsTrigger>
+                        <TabsTrigger value="register">Register</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="login">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Login</CardTitle>
+                                <CardDescription>
+                                    Enter your credentials to access your account.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-6">
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-name">email</Label>
+                                    <Input id="tabs-demo-name" placeholder="example@example.com" />
+                                </div>
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-username">Password</Label>
+                                    <Input id="tabs-demo-username"  type='password' placeholder="password" />
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button onClick={() => handleSubmit}>Save changes</Button>
+                            </CardFooter>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="register">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Register</CardTitle>
+                                <CardDescription>
+                                    Create a new account by filling in the details below.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-6">
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-name">Email</Label>
+                                    <Input id="tabs-demo-name" placeholder='example@example.com' />
+                                </div>
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-username">Password</Label>
+                                    <Input id="tabs-demo-username" type='password' />
+                                </div>
+                                <div className="grid gap-3">
+                                    <Label htmlFor="tabs-demo-username">Confirm Password</Label>
+                                    <Input type='password' id="tabs-demo-username" />
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button>Save changes</Button>
+                            </CardFooter>
+                        </Card>   
+                    </TabsContent>
+                </Tabs>
             </div>
         </div>
     );

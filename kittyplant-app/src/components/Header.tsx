@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import axios from 'axios'
-import '../styles/Header.css';
-
 
 const Header = () => {
 
@@ -14,18 +12,18 @@ const Header = () => {
   }
 
   return (
-    <header className="header">
-      <nav className="nav">
-        <ul className="nav-list">
-          <Link to="/"  className="nav-item">Home</Link>
-          <Link to="/plants" className="nav-item">Plants</Link>
-            {
+    <header className="font-antonio font-medium text-lg flex justify-center p-6 bg-(--kitty-light-pink) w-[70%] h-8 rounded-[5.625rem] mx-auto mt-4 md:flex-col md:gap-4">
+      <nav>
+        <ul className="flex gap-70 justify-center">
+          <Link to="/" className="uppercase">Home</Link>
+          <Link to="/plants" className="uppercase">Plants</Link>
+          {
             document.cookie.split(';').some(cookie => cookie.trim().startsWith('session=')) ? (
-              <Link to="/" className="nav-item" onClick={handleLogout}>Logout</Link>
+              <Link to="/" className="uppercase " onClick={handleLogout}>Logout</Link>
             ) : (
-              <Link to="/login" className="nav-item">Login</Link>
+              <Link to="/login" className="uppercase">Login</Link>
             )
-            }
+          }
         </ul>
       </nav>
     </header>

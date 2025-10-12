@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import axios from 'axios';
-import '../styles/LoginPage.css'
 import Header from '../components/Header'
 import { useNavigate } from 'react-router-dom';
 
