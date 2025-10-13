@@ -41,33 +41,34 @@ void setup() {
   pinMode(PIN_RED,   OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE,  OUTPUT);
+  pinMode(PIN_RELAY, OUTPUT);
 
-  WiFi.setHostname(hostname);
-  WiFi.mode(WIFI_AP_STA);
+  // WiFi.setHostname(hostname);
+  // WiFi.mode(WIFI_AP_STA);
 
-  WiFi.softAP(ssidAP, passwordAP);
+  // WiFi.softAP(ssidAP, passwordAP);
   
-  run_wifi_portal();
+  // run_wifi_portal();
 
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password, 0, NULL, true);
+  // WiFi.setAutoReconnect(true);
+  // WiFi.persistent(true);
+  // WiFi.mode(WIFI_STA);
+  // WiFi.begin(ssid, password, 0, NULL, true);
 
-  readMacAddress();
+  // readMacAddress();
 
-  while (WiFi.status() != WL_CONNECTED) {
-    blinkColor(0, 0, 255);
-    Serial.print(".");
-  }
-  Serial.println("\nConnected to Wi-Fi!");
-  Serial.print("ESP32 IP Address: ");
-  Serial.println(WiFi.localIP());
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   blinkColor(0, 0, 255);
+  //   Serial.print(".");
+  // }
+  // Serial.println("\nConnected to Wi-Fi!");
+  // Serial.print("ESP32 IP Address: ");
+  // Serial.println(WiFi.localIP());
 
-  client.begin(mqtt_server, port, espClient);
-  client.connect(hostname, mqtt_user, mqtt_password);
-  client.onMessage(callback);
-  client.subscribe(topic);
+  // client.begin(mqtt_server, port, espClient);
+  // client.connect(hostname, mqtt_user, mqtt_password);
+  // client.onMessage(callback);
+  // client.subscribe(topic);
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
@@ -76,14 +77,14 @@ void setup() {
 
 
 void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
+  // if (!client.connected()) {
+  //   reconnect();
+  // }
+  // client.loop();
 
-  if (WiFi.status() != WL_CONNECTED) {
-    signalNoWifiConnection(ssid, password);
-  } else {
+  // if (WiFi.status() != WL_CONNECTED) {
+  //   signalNoWifiConnection(ssid, password);
+  // } else {
     int sensorValue = analogRead(PIN_SENSOR);
     Serial.print("Sensor Value: ");
     Serial.println(sensorValue);
@@ -91,13 +92,21 @@ void loop() {
     int realValue = 100 - map(sensorValue, 0, 4095, 0, 100);
     Serial.printf("%d%%\n", realValue);
 
-    char buffer[256];
-    JsonDocument doc;
-    doc["water_level"] = realValue;
 
-    size_t n = serializeJson(doc, buffer);
-    client.publish(topic, buffer, n);
+    if (realValue < 60) {
+      digitalWrite(PIN_RELAY, LOW); // Activate the relay
+      blinkColor(255, 0, 0); // Red
+    } else {
+      digitalWrite(PIN_RELAY, HIGH); // Deactivate the relay
+      blinkColor(0, 0, 255); // Blue
+    }
+    // char buffer[256];
+    // JsonDocument doc;
+    // doc["water_level"] = realValue;
+
+    // size_t n = serializeJson(doc, buffer);
+    // client.publish(topic, buffer, n);
 
     delay(5000); 
-  }
+  // }
 }

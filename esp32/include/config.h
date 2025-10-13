@@ -5,6 +5,7 @@
 #define PIN_GREEN  22 // GPIO22
 #define PIN_BLUE   21 // GPIO21
 #define PIN_SENSOR A0 // SVP
+#define PIN_RELAY  26 // SVN
 
 // MQTT client
 const char* hostname = "kp-0001";
