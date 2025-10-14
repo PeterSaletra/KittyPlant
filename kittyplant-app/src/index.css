@@ -14,7 +14,7 @@
   --background: var(--kitty-crayola);
   --foreground: oklch(0.145 0 0);
   /* --card: oklch(1 0 0); */
-  --card: var(---kitty-white);
+  --card: var(--kitty-light-pink);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);

@@ -64,15 +64,15 @@ function Login(){
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-name">email</Label>
-                                    <Input id="tabs-demo-name" placeholder="example@example.com" />
+                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder="example@example.com" />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Password</Label>
-                                    <Input id="tabs-demo-username"  type='password' placeholder="password" />
+                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder="password" />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button onClick={() => handleSubmit}>Save changes</Button>
+                                <Button onClick={() => handleSubmit} className='bg-(--kitty-dark-pink)'>Save changes</Button>
                             </CardFooter>
                         </Card>
                     </TabsContent>
@@ -87,19 +87,19 @@ function Login(){
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-name">Email</Label>
-                                    <Input id="tabs-demo-name" placeholder='example@example.com' />
+                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder='example@example.com' />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Password</Label>
-                                    <Input id="tabs-demo-username" type='password' />
+                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder='Password' />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Confirm Password</Label>
-                                    <Input type='password' id="tabs-demo-username" />
+                                    <Input type='password' id="tabs-demo-username" className='bg-(--kitty-white)' placeholder='Confirm password'/>
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button>Save changes</Button>
+                                <Button className='bg-(--kitty-dark-pink)'>Save changes</Button>
                             </CardFooter>
                         </Card>   
                     </TabsContent>

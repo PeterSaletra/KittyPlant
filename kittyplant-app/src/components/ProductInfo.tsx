@@ -2,7 +2,7 @@ import kittyplant from '../assets/kittyandplant.png';
 
 const ProductInfo = () => {
   return (
-    <section className="w-full bg-kitty-dark-pink text-white py-10 px-4 mt-8">
+    <section className="w-full bg-(--kitty-dark-pink) text-white py-10 px-4 mt-8">
       <div className="flex flex-col gap-8 max-w-[1000px] mx-auto md:flex-row md:items-center">
         <div className="md:flex-1">
           <h2 className="text-[3.2rem] font-normal leading-[1.4] text-right">
