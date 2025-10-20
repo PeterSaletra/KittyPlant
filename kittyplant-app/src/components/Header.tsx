@@ -12,8 +12,8 @@ const Header = () => {
   }
 
   return (
-    <header className="font-antonio font-medium text-lg flex justify-center p-6 bg-(--kitty-light-pink) w-[70%] h-8 rounded-[5.625rem] mx-auto mt-4 md:flex-col md:gap-4">
-      <nav>
+    <div className="font-antonio font-medium text-lg flex justify-center p-6 bg-(--kitty-light-pink) w-[70%] h-8 rounded-[5.625rem] mx-auto mt-4 md:flex-col md:gap-4">
+      <div>
         <ul className="flex gap-70 justify-center">
           <Link to="/" className="uppercase">Home</Link>
           <Link to="/plants" className="uppercase">Plants</Link>
@@ -25,8 +25,8 @@ const Header = () => {
             )
           }
         </ul>
-      </nav>
-    </header>
+      </div>
+    </div>
   )
 }
 

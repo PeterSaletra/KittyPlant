@@ -1,18 +1,37 @@
 import Header from '../components/Header'
 import AddIcon from '@mui/icons-material/Add';
-import "../styles/PlantsPage.css"
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
-import RangeSlider from "react-range-slider-input";
-import "react-range-slider-input/dist/style.css";
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 function PlantsPage() {
   const [waterLevels, setWaterLevels] = useState<number[]>([]);
   const [deviceName, setDeviceName] = useState<string[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState('');
   const [newID, setID] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
@@ -49,7 +68,6 @@ function PlantsPage() {
   , []);
 
   const handleAddDevice = () => {
-    setIsModalOpen(true);
       try{
       axios.get('/api/v1/plants' , { withCredentials: true })
       .then((response) => {
@@ -59,10 +77,6 @@ function PlantsPage() {
     }catch(error) {
       console.error("Error fetching plants:", error);
     }
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
   };
 
   const handleSubmitNewDevice = () => {
@@ -84,7 +98,6 @@ function PlantsPage() {
       .then((response) => {
         console.log('Device added:', response.data);
         handleUpdateWaterLevel();
-        setIsModalOpen(false);
       })
       .catch((error) => {
         console.error('Error adding device:', error);
@@ -92,85 +105,43 @@ function PlantsPage() {
   };
 
   return (
-    <div className="tmp-plant">
+    <div className="h-full">
       <Header />
-      <div className="plants-page">
-          <div className="plant-card">
+      <div className="h-full w-full">
+          <div className="w-4/5 flex flex-wrap justify-center mx-auto my-5">
           {deviceName.map((name, index) => (
             <WaterLevel key={index} waterLevel={waterLevels[index]} name={name} />
           ))}
           </div>
-        <button className='btn-options'><AddIcon/></button>
-        <button className='btn-add-device' onClick={handleAddDevice}><AddIcon/> Add device</button>
+        <DropdownMenu>
+           <DropdownMenuTrigger asChild><Button className='fixed left-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><MenuOpenIcon/></Button></DropdownMenuTrigger> 
+          <DropdownMenuContent className='bg-(--kitty-light-pink)' side='bottom' align='start' sideOffset={5}>
+            <DropdownMenuLabel>Menu</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className='justify-between'>Charts <BarChartIcon className='text-black'/></DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Dialog>
+          <DialogTrigger><Button className='fixed right-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><AddIcon/></Button></DialogTrigger>
+          <DialogContent className='bg-(--kitty-light-pink) w-[400px]'>
+            <DialogHeader>
+              <DialogTitle>Add new device</DialogTitle>
+              <DialogDescription>
+                <Label className='m-2'>Device Name</Label>
+                <Input value={newDeviceName} onChange={(e) => setNewDeviceName(e.target.value)} />
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit" className='bg-(--kitty-dark-pink)'>Save changes</Button>
+           </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <img src={leaftoplfet} alt="Leaf Top Left" className="leaf-decoration top-left"/>
-      <img src={leaftopright} alt="Leaf Top Right" className="leaf-decoration top-right"/>
-      {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>ADD NEW DEVICE</h2>
-            <label>DEVICE ID</label>
-              <input
-                type="text"
-                value={newID}
-                placeholder='DEVICE ID'
-                onChange={(e) => setID(e.target.value)}
-              />
-              <label>CUSTOM DEVICE NAME</label>
-              <input
-                type="text"
-                value={newDeviceName}
-                placeholder='CUSTOM DEVICE NAME'
-                onChange={(e) => setNewDeviceName(e.target.value)}
-              />
-            <label>PLANT</label>
-              <select
-                value={newDevicePlant}
-                onChange={(e) => setNewDevicePlant(e.target.value)}
-                style={{ color: newDevicePlant ? 'black' : 'gray' }}
-              >
-                <option value="" style={{color : 'gray'}}>SELECT A PLANT</option>
-                {plantsName.map((name, index) => (
-                  <option key={index} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-              <label style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
-                <input 
-                  type="checkbox"
-                  checked={isCustomPlant}
-                  onChange={(e) => setIsCustomPlant(e.target.checked)}
-                />
-                ADD CUSTOM PLANT
-              </label>
-            {isCustomPlant && (
-              <><label>CUSTOM PLANT NAME</label>
-                <input
-                  type="text"
-                  value={customPlantName}
-                  placeholder='PLANT NAME'
-                  onChange={(e) => setCustomPlantName(e.target.value)} />
-              <label>HYDRATION LEVEL</label>
-                <RangeSlider
-                  id="range-slider"
-                  className="margin-lg"
-                  min={0} 
-                  max={100} 
-                  step={5}  
-                  value={customWaterLevels}
-                  onInput={setCustomWaterLevels}
-                  />
-                  {customWaterLevels[0]}% - {customWaterLevels[1]}%
-              </>
-            )}
-            <div className="modal-actions">
-              <button onClick={handleSubmitNewDevice}>SUBMIT</button>
-              <button onClick={handleModalClose}>CANCEL</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <img src={leaftoplfet} alt="Leaf Top Left" className="fixed -z-5 h-auto w-1/5 top-0 left-0"/>
+      <img src={leaftopright} alt="Leaf Top Right" className="fixed -z-5 h-auto w-1/5 top-0 right-0"/>
     </div>
   );
 }
