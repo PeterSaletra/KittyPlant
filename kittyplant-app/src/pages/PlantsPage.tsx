@@ -2,6 +2,7 @@ import Header from '../components/Header'
 import AddIcon from '@mui/icons-material/Add';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -10,6 +11,7 @@ import leaftopright from '../assets/leaftopright.png'
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +30,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 function PlantsPage() {
   const [waterLevels, setWaterLevels] = useState<number[]>([]);
@@ -118,6 +127,7 @@ function PlantsPage() {
           <DropdownMenuContent className='bg-(--kitty-light-pink)' side='bottom' align='start' sideOffset={5}>
             <DropdownMenuLabel>Menu</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem className='justify-between'>Profile <AccountCircleIcon className='text-black'/></DropdownMenuItem>
             <DropdownMenuItem className='justify-between'>Charts <BarChartIcon className='text-black'/></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -127,8 +137,26 @@ function PlantsPage() {
             <DialogHeader>
               <DialogTitle>Add new device</DialogTitle>
               <DialogDescription>
-                <Label className='m-2'>Device Name</Label>
-                <Input value={newDeviceName} onChange={(e) => setNewDeviceName(e.target.value)} />
+                <Label className='m-4'>Device ID</Label>
+                <Input value={newID} onChange={(e) => setID(e.target.value)} className='bg-(--kitty-white)' placeholder='kp-0000'/>
+                <Label className='m-4'>Device Custom Name</Label>
+                <Input value={newDeviceName} onChange={(e) => setNewDeviceName(e.target.value)} className='bg-(--kitty-white)' placeholder='Super Cute Plant'/>
+                <Label className='m-4'>Pick you plant</Label>
+                <Select>
+                  <SelectTrigger className="w-full bg-(--kitty-white)">
+                    <SelectValue placeholder="Select a plant" />
+                  </SelectTrigger>
+                  <SelectContent className='bg-(--kitty-light-pink)'>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className='flex items- m-4'>
+                  <Checkbox className='bg-(--kitty-white)'/>
+                  <Label className='ml-2'>Custom Plant</Label>
+                </div>
+
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
