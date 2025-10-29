@@ -8,15 +8,15 @@ import leaftopright from '../assets/leaftopright.png'
 
 function HomePage() {
   return (
-    <div className="app-container">
+    <div className="m-auto overflow-hidden relative">
       
       <Header />
       <Hero />
       <Features />
       <ProductInfo />
       <Footer />
-      <img src={leaftoplfet} alt="Leaf Top Left" className="leaf-decoration top-left"/>
-      <img src={leaftopright} alt="Leaf Top Right" className="leaf-decoration top-right"/>
+      <img src={leaftoplfet} alt="Leaf Top Left" className="absolute -z-1 h-auto w-1/3 top-0 left-0"/>
+      <img src={leaftopright} alt="Leaf Top Right" className="absolute -z-1 h-auto w-1/3 top-0 right-0"/>
     </div>
   )
 }

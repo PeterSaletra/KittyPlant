@@ -1,24 +1,23 @@
-import '../styles/Footer.css';
 import leafbottomleft from '../assets/leafbottomleft.png'
 import leafbottomright from '../assets/leafbottomright.png'
 
 const Footer = () => {
   return (
-    <footer className="footer">
-      <div className='footer-content'>
-      <h2 className="contact-title">CONTACT US</h2>
-      <div className="contact-info">
-        <div className="contact-item">
-          <span className="contact-label">PHONE:</span> 123-456-789
+    <div className="text-center flex justify-center px-1 pt-2 pb-4 mt-5">
+      <div className='px-1 pt-2 pb-4 text-center justify-center m-auto items-center'>
+      <h2 className='mb-5 font-light text-5xl text-black'>CONTACT US</h2>
+      <div className="bg-[#ffd4d4] max-w-[600px] m-auto p-1 rounded-4xl flex flex-col">
+        <div className='my-2 mx-0.25'>
+          <span className="font-bold">PHONE:</span> 123-456-789
         </div>
-        <div className="contact-item">
-          <span className="contact-label">EMAIL:</span> info@kittyplant.io
+        <div className='my-2 mt-0.25'>
+          <span className="font-bold">EMAIL:</span> info@kittyplant.io
         </div>
       </div>
       </div>
-      <img src={leafbottomleft} alt="Leaf Bottom Left" className="leaf-decoration bottom-left"/>
-      <img src={leafbottomright} alt="Leaf Bottom Right" className="leaf-decoration bottom-right"/>
-    </footer>
+      <img src={leafbottomleft} alt="Leaf Bottom Left" className="absolute -z-1 h-auto w-1/4 bottom-0 left-0"/>
+      <img src={leafbottomright} alt="Leaf Bottom Right" className="absolute -z-1 h-auto w-1/4 bottom-0 right-0"/>
+    </div>
   )
 }
 
