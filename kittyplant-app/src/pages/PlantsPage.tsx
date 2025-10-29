@@ -1,8 +1,6 @@
 import Header from '../components/Header'
 import AddIcon from '@mui/icons-material/Add';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuButton from '../components/MenuButton';
 import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -12,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import {
   Dialog,
   DialogContent,
@@ -22,14 +21,6 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
@@ -122,15 +113,7 @@ function PlantsPage() {
             <WaterLevel key={index} waterLevel={waterLevels[index]} name={name} />
           ))}
           </div>
-        <DropdownMenu>
-           <DropdownMenuTrigger asChild><Button className='fixed left-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><MenuOpenIcon/></Button></DropdownMenuTrigger> 
-          <DropdownMenuContent className='bg-(--kitty-light-pink)' side='bottom' align='start' sideOffset={5}>
-            <DropdownMenuLabel>Menu</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className='justify-between'>Profile <AccountCircleIcon className='text-black'/></DropdownMenuItem>
-            <DropdownMenuItem className='justify-between'>Charts <BarChartIcon className='text-black'/></DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <MenuButton />
         <Dialog>
           <DialogTrigger><Button className='fixed right-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><AddIcon/></Button></DialogTrigger>
           <DialogContent className='bg-(--kitty-light-pink) w-[400px]'>
@@ -152,10 +135,18 @@ function PlantsPage() {
                     <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className='flex items- m-4'>
-                  <Checkbox className='bg-(--kitty-white)'/>
+                <div className='flex items-center m-6'>
+                  <Checkbox className='bg-(--kitty-white)' checked={isCustomPlant} onCheckedChange={checked => setIsCustomPlant(checked === true)}/>
                   <Label className='ml-2'>Custom Plant</Label>
                 </div>
+                {isCustomPlant && (
+                  <>
+                    <Label className='m-4'>Custom Plant Name</Label>
+                    <Input value={customPlantName} onChange={(e) => setCustomPlantName(e.target.value)} className='bg-(--kitty-white)' placeholder='My Unique Plant'/>
+                    <Label className='m-4'>Custom Water Levels</Label>
+                    <Slider value={customWaterLevels} onValueChange={value => setCustomWaterLevels(value as [number, number])} min={0} max={100} step={5} defaultValue={[30, 60]} className='[&_[role=slider]]:bg-(--kitty-dark-pink) [&_[role=slider]]:border-pink-500 [&>span:first-child]:bg-(--kitty-white) [&>span:first-child>span]:bg-(--kitty-dark-pink) m-4'/>
+                  </>
+                )}
 
               </DialogDescription>
             </DialogHeader>
