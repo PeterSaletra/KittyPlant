@@ -1,14 +1,20 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <Wire.h>
 #include <MQTTClient.h>
 #include "config.h"
 #include "helpers.h"
 #include "wifi_portal.h"
+#include "water_sensor.h"
 
 
 WiFiClient espClient;
 MQTTClient client(512);
+
+bool relayWasActive = false;
+
+uint32_t sleepDuration = SLEEP_DURATION_SEC;
 
 
 void reconnect() {
@@ -38,9 +44,11 @@ void callback(String &topic, String &payload) {
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin();
   pinMode(PIN_RED,   OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE,  OUTPUT);
+  pinMode(PIN_RELAY, OUTPUT);
 
   WiFi.setHostname(hostname);
   WiFi.mode(WIFI_AP_STA);
@@ -84,20 +92,59 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     signalNoWifiConnection(ssid, password);
   } else {
-    int sensorValue = analogRead(PIN_SENSOR);
+    int moisture_raw_value = analogRead(PIN_SENSOR);
     Serial.print("Sensor Value: ");
-    Serial.println(sensorValue);
+    Serial.println(moisture_raw_value);
 
-    int realValue = 100 - map(sensorValue, 0, 4095, 0, 100);
-    Serial.printf("%d%%\n", realValue);
+    int moisture_level = 100 - map(moisture_raw_value, 0, 4095, 0, 100);
+    Serial.printf("Moisture Level: %d%%\n", moisture_level);
+    int8_t water_level = get_water_level();
+    Serial.printf("Water Level: %d%%\n", water_level);
+
+    bool relayActive = false;
+    if (water_level > 20 && moisture_level < 60) {
+      digitalWrite(PIN_RELAY, LOW);
+      blinkColor(255, 0, 0);
+      Serial.println("Relay ON - podlewanie");
+      relayActive = true;
+    } else {
+      digitalWrite(PIN_RELAY, HIGH);
+      if (water_level <= 20) {
+        blinkColor(255, 255, 0);
+        Serial.println("Relay OFF - brak wody w zbiorniku");
+      } else {
+        blinkColor(0, 0, 255);
+        Serial.println("Relay OFF - wilgotność OK");
+      }
+    }
+
+    if (relayActive && !relayWasActive) {
+      Serial.println(">>> Relay został WŁĄCZONY w tym cyklu");
+      sleepDuration = SLEEP_DURATION_SEC / 2;
+      if (sleepDuration < 1) sleepDuration = 1;
+    } else if (!relayActive && relayWasActive) {
+      Serial.println(">>> Relay został WYŁĄCZONY w tym cyklu");
+      sleepDuration = SLEEP_DURATION_SEC * 2;
+    } else if (!relayActive) {
+      sleepDuration = SLEEP_DURATION_SEC * 3;
+    }
+    relayWasActive = relayActive;
+
+    Serial.printf("Czas snu: %d sekund\n", sleepDuration);
 
     char buffer[256];
     JsonDocument doc;
-    doc["water_level"] = realValue;
+    doc["moisture_level"] = moisture_level;
+    doc["water_section"] = water_level;
+    doc["relay_activated"] = (relayActive && !relayWasActive) ? 1 : 0;
 
     size_t n = serializeJson(doc, buffer);
     client.publish(topic, buffer, n);
 
-    delay(5000); 
+    if (!relayWasActive) {
+      esp_sleep_enable_timer_wakeup(sleepDuration * uS_TO_S_FACTOR);
+      esp_light_sleep_start();
+    }
+
   }
 }
