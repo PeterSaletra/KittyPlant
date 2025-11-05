@@ -1,6 +1,6 @@
 #include <WebServer.h>
 #include <DNSServer.h>
-#include "WebPage.h"
+#include "web_page.h"
 #include "helpers.h"
 
 DNSServer dnsServer;
