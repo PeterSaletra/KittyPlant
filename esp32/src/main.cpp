@@ -136,7 +136,7 @@ void loop() {
     JsonDocument doc;
     doc["moisture_level"] = moisture_level;
     doc["water_section"] = water_level;
-    doc["relay_activated"] = (relayActive && !relayWasActive) ? 1 : 0;
+    doc["relay_activated"] = (relayActive && !relayWasActive) ? true : false;
 
     size_t n = serializeJson(doc, buffer);
     client.publish(topic, buffer, n);

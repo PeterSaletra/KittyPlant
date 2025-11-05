@@ -45,12 +45,12 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 	for _, device := range devicesdb {
 		redisKey := device.DeviceName + "/data"
 
-		deviceData, err := c.redis.Get(ctx, redisKey).Result()
+		deviceData, err := c.cache.Get(redisKey)
 
 		var waterLevel int
 		if err != nil {
 
-			log.Printf(err.Error())
+			log.Printf("%s", err.Error())
 			waterLevel = 0
 		} else {
 

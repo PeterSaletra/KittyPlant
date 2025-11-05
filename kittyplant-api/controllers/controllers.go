@@ -1,24 +1,24 @@
 package controllers
 
 import (
+	"kittyplant-api/cache"
 	"kittyplant-api/mqtt"
 	"kittyplant-api/store"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 type Controllers struct {
 	DB    *store.Database
 	mqtt  *mqtt.MqttClient
-	redis *redis.Client
+	cache *cache.Cache
 }
 
-func NewControllers(db *store.Database, redis *redis.Client, mqtt *mqtt.MqttClient) *Controllers {
+func NewControllers(db *store.Database, cache *cache.Cache, mqtt *mqtt.MqttClient) *Controllers {
 	return &Controllers{
 		DB:    db,
 		mqtt:  mqtt,
-		redis: redis,
+		cache: cache,
 	}
 }
 

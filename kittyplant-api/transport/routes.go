@@ -36,5 +36,10 @@ func (h *HttpServer) prepareRoutes() {
 		{
 			plants.GET("", h.c.GetPlants)
 		}
+
+		users := api.Group("/users")
+		{
+			users.GET("/me", h.c.GetUser)
+		}
 	}
 }

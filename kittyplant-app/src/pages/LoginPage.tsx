@@ -18,31 +18,49 @@ import { Label } from "@/components/ui/label"
 
 function Login(){
     const navigate = useNavigate();
-    const [error, setError] = useState<string | null>(null);
-    const [username_form, setUsername_form] = useState<string>('');
-    const [password_form, setPassword_form] = useState<string>('');
+    const [usernameLogin, setUsernameLogin] = useState<string>('');
+    const [passwordLogin, setPasswordLogin] = useState<string>('');
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const [usernameRegister, setUsernameRegister] = useState<string>('');
+    const [passwordRegister, setPasswordRegister] = useState<string>('');
+    const [confirmPasswordRegister, setConfirmPasswordRegister] = useState<string>('');
 
+
+    const handleLogin = async () => {
         try {
 
             const response = await axios.post(
-                '/api/auth/login',
-                { user: username_form, password: password_form }, 
-                { withCredentials: true }
+                'http://localhost:8080/api/auth/login',
+                { user: usernameLogin, password: passwordLogin }
             );
 
             if (response.status === 200) {
                 navigate("/plants");
-            } else {
-                setError(`Unexpected response: ${response.status}`);
+            } 
+        } catch (err: any) {
+            console.log(err);
+        }
+    }
+
+    const handleRegister = async () => {
+        if (passwordRegister !== confirmPasswordRegister) {
+            console.log("Passwords do not match");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                'http://localhost:8080/api/auth/register',
+                { user: usernameRegister, password: passwordRegister }
+            );
+
+            if (response.status === 201) {
+                navigate("/plants");
             }
         } catch (err: any) {
             console.log(err);
-            setError("Invalid username or password!");
         }
-    }   
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -64,15 +82,17 @@ function Login(){
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-name">email</Label>
-                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder="example@example.com" />
+                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder="username" 
+                                    value={usernameLogin} onChange={(e) => setUsernameLogin(e.target.value)} />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Password</Label>
-                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder="password" />
+                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder="password" 
+                                    value={passwordLogin} onChange={(e) => setPasswordLogin(e.target.value)} />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button onClick={() => handleSubmit} className='bg-(--kitty-dark-pink)'>Save changes</Button>
+                                <Button onClick={handleLogin} className='bg-(--kitty-dark-pink)'>Save changes</Button>
                             </CardFooter>
                         </Card>
                     </TabsContent>
@@ -87,19 +107,23 @@ function Login(){
                             <CardContent className="grid gap-6">
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-name">Email</Label>
-                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder='example@example.com' />
+                                    <Input id="tabs-demo-name" className='bg-(--kitty-white)' placeholder='username' 
+                                    value={usernameRegister} onChange={(e) => setUsernameRegister(e.target.value)} />
+
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Password</Label>
-                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder='Password' />
+                                    <Input id="tabs-demo-username" className='bg-(--kitty-white)' type='password' placeholder='Password' 
+                                    value={passwordRegister} onChange={(e) => setPasswordRegister(e.target.value)} />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="tabs-demo-username">Confirm Password</Label>
-                                    <Input type='password' id="tabs-demo-username" className='bg-(--kitty-white)' placeholder='Confirm password'/>
+                                    <Input type='password' id="tabs-demo-username" className='bg-(--kitty-white)' placeholder='Confirm password'
+                                    value={confirmPasswordRegister} onChange={(e) => setConfirmPasswordRegister(e.target.value)} />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button className='bg-(--kitty-dark-pink)'>Save changes</Button>
+                                <Button className='bg-(--kitty-dark-pink)' onClick={handleRegister}>Save changes</Button>
                             </CardFooter>
                         </Card>   
                     </TabsContent>
