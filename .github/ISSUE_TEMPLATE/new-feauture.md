@@ -11,12 +11,41 @@ assignees: ''
 
 ## Implementation Plan
 
-| Component | Changes Required | Details |
-|-----------|-----------------|---------|
-| **Backend** | [ ] API [ ] DB [ ] MQTT | Endpoints: <br>Schema: |
-| **Frontend** | [ ] UI [ ] Component [ ] Page | Pages/Components: |
-| **ESP32** | [ ] Sensor [ ] Library [ ] Logic | Hardware: <br>Libraries: |
-| **Infrastructure** | [ ] Docker [ ] Nginx [ ] Env | Services: |
+### Backend (Go + Gin)
+- [ ] New API endpoint(s)
+- [ ] Database schema changes
+- [ ] MQTT topic changes
+
+**API Details:**
+| Method | Endpoint | Request | Response |
+|--------|----------|---------|----------|
+| | | | |
+
+### Frontend (React + Vite)
+- [ ] New UI component(s)
+- [ ] New page/view
+- [ ] State management updates
+
+**Affected pages/components:**
+- 
+
+### ESP32 (C++ + Arduino)
+- [ ] New sensor/hardware
+- [ ] New library dependency
+- [ ] Firmware logic changes
+
+**Hardware requirements:**
+| Component | Model | Purpose |
+|-----------|-------|---------|
+| | | |
+
+### Infrastructure (Docker/Nginx)
+- [ ] New Docker service
+- [ ] Nginx config changes
+- [ ] Environment variables
+
+**Services:**
+- 
 
 ## Checklist
 - [ ]
