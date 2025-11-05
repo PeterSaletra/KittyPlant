@@ -1,7 +1,7 @@
 ---
-name: "[NEW FEAUTURE]"
+name: "New Feature"
 about: Suggest a new feature
-title: ''
+title: '[NEW FEATURE]'
 labels: ''
 assignees: ''
 
