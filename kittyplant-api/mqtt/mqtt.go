@@ -1,22 +1,29 @@
 package mqtt
 
 import (
-	"context"
+	"encoding/json"
+	"kittyplant-api/cache"
 	"kittyplant-api/config"
 	"log"
 	"sync"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/redis/go-redis/v9"
 )
 
 type MqttClient struct {
 	client mqtt.Client
-	redis  *redis.Client
+	cache  *cache.Cache
 	mu     sync.Map
 }
 
-func NewMqttClient(broker string, redisClient *redis.Client) (*MqttClient, error) {
+type SensorData struct {
+	DeviceID   string  `json:"device_id"`
+	Moisture   float64 `json:"moisture"`
+	WaterLevel int64   `json:"water_level"`
+	RelayState bool    `json:"relay_actived"`
+}
+
+func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
 	log.Printf("Connecting to MQTT broker at %s", broker)
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
@@ -44,7 +51,7 @@ func NewMqttClient(broker string, redisClient *redis.Client) (*MqttClient, error
 
 	return &MqttClient{
 		client: client,
-		redis:  redisClient,
+		cache:  cache,
 	}, nil
 }
 
@@ -58,10 +65,16 @@ func (m *MqttClient) Subscribe(topic string) {
 	token := m.client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 
-		ctx := context.Background()
-		err := m.redis.Set(ctx, msg.Topic(), string(msg.Payload()), 0).Err()
+		var sensorData SensorData
+		err := json.Unmarshal(msg.Payload(), &sensorData)
 		if err != nil {
-			log.Printf("Failed to save message to Redis: %v", err)
+			log.Printf("Failed to unmarshal message payload: %v", err)
+			return
+		}
+
+		err = m.cache.SetObject(msg.Topic(), sensorData, 0)
+		if err != nil {
+			log.Printf("Failed to save message to cache: %v", err)
 		}
 	})
 	token.Wait()

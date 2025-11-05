@@ -18,8 +18,8 @@ import (
 
 type HttpServer struct {
 	router *gin.Engine
-	db *store.Database
-	c  *controllers.Controllers
+	db     *store.Database
+	c      *controllers.Controllers
 }
 
 func NewHttpServer(database *store.Database, c *controllers.Controllers) *HttpServer {
@@ -68,7 +68,6 @@ func (h *HttpServer) Serve() {
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
 
-	
 	srv.Shutdown(ctx)
 	log.Println("server shutting down")
 }

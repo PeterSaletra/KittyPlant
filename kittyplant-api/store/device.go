@@ -33,6 +33,13 @@ func (d *Database) GetDevicesAssignedToUser(devices *[]Device, userID uint) (err
 	return nil
 }
 
+func (d *Database) GetDevicesCountAssignedToUserID(userID uint) (count int64, err error) {
+	if err = d.DB.Model(&Device{}).Joins("JOIN relations ON devices.id = relations.device_id").Where("relations.user_id = ?", userID).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (d *Database) AddDevice(deviceID string, device *Device) (err error) {
 	if err = d.DB.Create(device).Error; err != nil {
 		return err

@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"kittyplant-api/store"
 	"kittyplant-api/utils"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,7 @@ import (
 )
 
 const userSessionKey = "username"
+const userIDSessionKey = "user_id"
 
 type AuthReq struct {
 	User     string `form:"user" json:"user" binding:"required"`
@@ -37,12 +40,14 @@ func (c *Controllers) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
-
 	session.Set(userSessionKey, json.User)
+	session.Set(userIDSessionKey, user.ID)
 	if err := session.Save(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	c.cache.SetObject(fmt.Sprintf("user:%d", user.ID), user, time.Hour*2)
 
 	ctx.JSON(http.StatusOK, gin.H{"user": user.Name})
 }
@@ -50,7 +55,7 @@ func (c *Controllers) Login(ctx *gin.Context) {
 func (c *Controllers) Logout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 
-	session.Delete(userSessionKey)
+	session.Clear()
 
 	if err := session.Save(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -51,6 +51,13 @@ func (d *Database) GetUserByName(user *User, name string) (err error) {
 	return nil
 }
 
+func (d *Database) GetUserByID(id string) (user User, err error) {
+	if err = d.DB.First(&user, id).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 func (d *Database) DeleteUser(user *User, id string) (err error) {
 	if err = d.DB.Delete(user, id).Error; err != nil {
 		return err
