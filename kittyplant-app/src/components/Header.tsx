@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import axios from 'axios'
+import { logout } from '@/lib/auth';
 
 const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
+      await logout()
     } catch (err) {
       console.error(err)
     }

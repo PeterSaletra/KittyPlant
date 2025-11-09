@@ -22,25 +22,50 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getUserDetail } from '@/lib/users'
+import { toast } from 'sonner'
 
 
 function ProfilePage() {
-    // Przykładowe dane użytkownika
-    const [userData, setUserData] = useState({
-        firstName: 'Jan',
-        lastName: 'Kowalski',
-        email: 'jan.kowalski@example.com',
-        phone: '+48 123 456 789'
-    });
+    const [userData, setUserData] = useState<{
+        id: number,
+        username: string,
+        created_at: string,
+        updated_at: string,
+        devices_count: number
+    }>();
 
-    // Stany dla formularzy
-    const [editData, setEditData] = useState(userData);
+    const [editData, setEditData] = useState<typeof userData>(undefined);
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
     });
+
+    const formatDate = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const handleGetUserData = async () => {
+        try{
+            const response = await getUserDetail();
+            setUserData(response); 
+        }catch(error){
+            toast.error(`Error occured while fetching user data: ${error}`)
+        }
+    }
+
+    useEffect(() => {
+        handleGetUserData();
+    }, [])
 
     const handleUpdateProfile = () => {
         setUserData(editData);
@@ -78,20 +103,20 @@ function ProfilePage() {
                             <h3 className="text-lg font-semibold">Dane osobowe</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <Label className="text-sm font-medium text-gray-600">Imię</Label>
-                                    <p className="text-base mt-1">{userData.firstName}</p>
+                                    <Label className="text-sm font-medium text-gray-600">Username:</Label>
+                                    <p className="text-base mt-1">{userData?.username}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-sm font-medium text-gray-600">Nazwisko</Label>
-                                    <p className="text-base mt-1">{userData.lastName}</p>
+                                    <Label className="text-sm font-medium text-gray-600">Created account at</Label>
+                                    <p className="text-base mt-1">{userData?.created_at ? formatDate(userData.created_at) : '-'}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-sm font-medium text-gray-600">Email</Label>
-                                    <p className="text-base mt-1">{userData.email}</p>
+                                    <Label className="text-sm font-medium text-gray-600">Last update</Label>
+                                    <p className="text-base mt-1">{userData?.updated_at ? formatDate(userData.updated_at) : '-'}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-sm font-medium text-gray-600">Telefon</Label>
-                                    <p className="text-base mt-1">{userData.phone}</p>
+                                    <Label className="text-sm font-medium text-gray-600">Number of devices</Label>
+                                    <p className="text-base mt-1">{userData?.devices_count}</p>
                                 </div>
                             </div>
                         </div>
@@ -114,39 +139,11 @@ function ProfilePage() {
                                     </DialogHeader>
                                     <div className="grid gap-4 py-4">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="firstName">Imię</Label>
+                                            <Label htmlFor="firstName">Username</Label>
                                             <Input
                                                 id="firstName"
-                                                value={editData.firstName}
-                                                onChange={(e) => setEditData({...editData, firstName: e.target.value})}
-                                                className='bg-(--kitty-white)'
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lastName">Nazwisko</Label>
-                                            <Input
-                                                id="lastName"
-                                                value={editData.lastName}
-                                                onChange={(e) => setEditData({...editData, lastName: e.target.value})}
-                                                className='bg-(--kitty-white)'
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="email">Email</Label>
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                value={editData.email}
-                                                onChange={(e) => setEditData({...editData, email: e.target.value})}
-                                                className='bg-(--kitty-white)'
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="phone">Telefon</Label>
-                                            <Input
-                                                id="phone"
-                                                value={editData.phone}
-                                                onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                                                value={editData?.username}
+                                                onChange={(e) => setEditData(editData ? {...editData, username: e.target.value} : undefined)}
                                                 className='bg-(--kitty-white)'
                                             />
                                         </div>

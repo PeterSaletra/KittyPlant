@@ -3,9 +3,11 @@ import AddIcon from '@mui/icons-material/Add';
 import MenuButton from '../components/MenuButton';
 import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
+import { getDevices, addDevice, type NewDevice } from '@/lib/devices';
+import { getPlants } from '@/lib/plants';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -40,19 +42,17 @@ function PlantsPage() {
   const [customPlantName, setCustomPlantName] = useState('');
   const [customWaterLevels, setCustomWaterLevels] = useState<[number, number]>([0, 100]);
 
-  const handleUpdateWaterLevel = () =>{
-    try{
-      axios.get('/api/v1/devices', { withCredentials: true })
-      .then((response) => {
-        const levels = response.data.devices.map((device: any) => device.waterLevel);
-        setWaterLevels(levels);
-        const name = response.data.devices.map((device: any) => device.name);
-        setDeviceName(name);
-        console.log(response.data)
-      })
-      }catch(error) {
-        console.error("Error fetching water level:", error);
-      }
+  const handleUpdateWaterLevel = async () => {
+    try {
+      const response = await getDevices();
+      const levels = response.devices.map((device: any) => device.waterLevel);
+      setWaterLevels(levels);
+      const name = response.devices.map((device: any) => device.name);
+      setDeviceName(name);
+    } catch (error) {
+      console.error("Error fetching water level:", error);
+      toast.error("Failed to fetch devices");
+    }
   }
 
   useEffect(() => {
@@ -67,20 +67,19 @@ function PlantsPage() {
     }
   , []);
 
-  const handleAddDevice = () => {
-      try{
-      axios.get('/api/v1/plants' , { withCredentials: true })
-      .then((response) => {
-        const plants = response.data.plants.map((plant: any) => plant.name);
-        setPlantsName(plants)
-      })
-    }catch(error) {
+  const handleAddDevice = async () => {
+    try {
+      const response = await getPlants();
+      const plants = response.plants.map((plant: any) => plant.name);
+      setPlantsName(plants);
+    } catch (error) {
       console.error("Error fetching plants:", error);
+      toast.error("Failed to fetch plants");
     }
   };
 
-  const handleSubmitNewDevice = () => {
-    const newDevice: any = {
+  const handleSubmitNewDevice = async () => {
+    const newDevice: NewDevice = {
       device_id: newID,
       name: newDeviceName,
       plant: isCustomPlant ? customPlantName : newDevicePlant,
@@ -91,17 +90,21 @@ function PlantsPage() {
       newDevice.water_level_max = customWaterLevels[1];
     }
 
-    console.log('New device data:', newDevice);
-
-    axios
-      .post('/api/v1/devices', newDevice, { withCredentials: true })
-      .then((response) => {
-        console.log('Device added:', response.data);
-        handleUpdateWaterLevel();
-      })
-      .catch((error) => {
-        console.error('Error adding device:', error);
-      });
+    try {
+      await addDevice(newDevice);
+      toast.success("Device added successfully!");
+      handleUpdateWaterLevel();
+      // Reset form
+      setNewDeviceName('');
+      setID('');
+      setNewDevicePlant('');
+      setIsCustomPlant(false);
+      setCustomPlantName('');
+      setCustomWaterLevels([0, 100]);
+    } catch (error) {
+      console.error('Error adding device:', error);
+      toast.error("Failed to add device");
+    }
   };
 
   return (
@@ -154,7 +157,9 @@ function PlantsPage() {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit" className='bg-(--kitty-dark-pink)'>Save changes</Button>
+              <DialogClose asChild>
+                <Button type="submit" onClick={handleSubmitNewDevice} className='bg-(--kitty-dark-pink)'>Save changes</Button>
+              </DialogClose>
            </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -14,10 +14,13 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from 'sonner'; 
+import { login, register as registerUser } from '@/lib/auth';
 
 
 function Login(){
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<string>('login');
     const [usernameLogin, setUsernameLogin] = useState<string>('');
     const [passwordLogin, setPasswordLogin] = useState<string>('');
 
@@ -27,38 +30,37 @@ function Login(){
 
 
     const handleLogin = async () => {
-        try {
+        try {    
 
-            const response = await axios.post(
-                'http://localhost:8080/api/auth/login',
-                { user: usernameLogin, password: passwordLogin }
-            );
-
-            if (response.status === 200) {
-                navigate("/plants");
-            } 
-        } catch (err: any) {
-            console.log(err);
+            await login(usernameLogin, passwordLogin);
+            toast.success("Login successful!");
+            navigate("/plants");
+        } catch (err: unknown) {
+            const errorMessage = axios.isAxiosError(err) 
+                ? err.response?.data?.message || err.message 
+                : 'An unexpected error occurred';
+            toast.error("Login failed: " + errorMessage);
         }
     }
 
     const handleRegister = async () => {
         if (passwordRegister !== confirmPasswordRegister) {
-            console.log("Passwords do not match");
+            toast.error("Passwords do not match");
             return;
         }
 
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/auth/register',
-                { user: usernameRegister, password: passwordRegister }
-            );
-
-            if (response.status === 201) {
-                navigate("/plants");
-            }
-        } catch (err: any) {
-            console.log(err);
+            await registerUser(usernameRegister, passwordRegister);
+            toast.success("Registration successful! You can now log in.");
+            
+            setUsernameLogin(usernameRegister);
+            setPasswordLogin('');
+            setActiveTab('login');
+        } catch (err: unknown) {
+            const errorMessage = axios.isAxiosError(err) 
+                ? err.response?.data?.message || err.message 
+                : 'An unexpected error occurred';
+            toast.error("Register failed: " + errorMessage);
         }
     };
 
@@ -66,7 +68,7 @@ function Login(){
         <div className="min-h-screen flex flex-col">
             <Header />
             <div className="h-full flex flex-col items-center justify-center m-auto">
-               <Tabs defaultValue="login" className="w-[400px] h-[400px]">
+               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px] h-[400px]">
                     <TabsList className='grid w-full grid-cols-2'>
                         <TabsTrigger value="login">Login</TabsTrigger>
                         <TabsTrigger value="register">Register</TabsTrigger>

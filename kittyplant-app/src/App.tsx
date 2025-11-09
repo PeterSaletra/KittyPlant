@@ -5,6 +5,7 @@ import PlantsPage from './pages/PlantsPage'
 import Register from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import ChartsPage from './pages/ChartsPage'
+import { Toaster } from 'sonner'
 
 const ProtectedRoute = () => {
   const isLoggedIn = document.cookie.includes('session');
@@ -25,6 +26,7 @@ function App() {
           {/* </Route> */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        <Toaster position="top-right" />
     </BrowserRouter>
   )
 }
