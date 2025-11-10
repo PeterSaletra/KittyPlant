@@ -6,6 +6,7 @@ import (
 	"kittyplant-api/config"
 	"log"
 	"sync"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -17,10 +18,12 @@ type MqttClient struct {
 }
 
 type SensorData struct {
-	DeviceID   string  `json:"device_id"`
-	Moisture   float64 `json:"moisture"`
-	WaterLevel int64   `json:"water_level"`
-	RelayState bool    `json:"relay_actived"`
+	DeviceID       string    `json:"device_id"`
+	Moisture       float64   `json:"moisture"`
+	WaterLevel     int64     `json:"water_level"`
+	RelayState     bool      `json:"relay_actived"`
+	LastWatered    time.Time `json:"last_watered,omitempty"`
+	LastWateredStr string    `json:"last_watered_str,omitempty"`
 }
 
 func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
@@ -64,12 +67,38 @@ func (m *MqttClient) Subscribe(topic string) {
 	log.Printf("Subscribing to topic %s", topic)
 	token := m.client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
+		currentTime := time.Now()
+		log.Printf("At time: %s", currentTime.Format(time.RFC3339))
 
 		var sensorData SensorData
 		err := json.Unmarshal(msg.Payload(), &sensorData)
 		if err != nil {
 			log.Printf("Failed to unmarshal message payload: %v", err)
 			return
+		}
+
+		// Try to get previous data to check for relay state change
+		previousDataRaw, err := m.cache.GetObjectAll(msg.Topic())
+		if err == nil && previousDataRaw != nil {
+			// Convert map to previous sensor data
+			if dataMap, ok := previousDataRaw.(map[string]interface{}); ok {
+				prevRelayState, _ := dataMap["relay_actived"].(string)
+				prevLastWatered, _ := dataMap["last_watered_str"].(string)
+
+				// If relay changed from inactive to active, record watering time
+				if prevRelayState == "false" && sensorData.RelayState {
+					sensorData.LastWatered = currentTime
+					sensorData.LastWateredStr = currentTime.Format(time.RFC3339)
+					log.Printf("Watering detected for device %s at %s", sensorData.DeviceID, sensorData.LastWateredStr)
+				} else if prevLastWatered != "" {
+					// Keep the previous last watered time
+					sensorData.LastWateredStr = prevLastWatered
+					parsedTime, parseErr := time.Parse(time.RFC3339, prevLastWatered)
+					if parseErr == nil {
+						sensorData.LastWatered = parsedTime
+					}
+				}
+			}
 		}
 
 		err = m.cache.SetObject(msg.Topic(), sensorData, 0)

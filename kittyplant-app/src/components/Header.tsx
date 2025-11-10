@@ -1,13 +1,16 @@
-import { Link } from 'react-router-dom';
-import { logout } from '@/lib/auth';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logout()
+      await logout();
+      navigate('/');
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   }
 
@@ -17,13 +20,11 @@ const Header = () => {
         <ul className="flex gap-70 justify-center">
           <Link to="/" className="uppercase">Home</Link>
           <Link to="/plants" className="uppercase">Plants</Link>
-          {
-            document.cookie.split(';').some(cookie => cookie.trim().startsWith('session=')) ? (
-              <Link to="/" className="uppercase " onClick={handleLogout}>Logout</Link>
-            ) : (
-              <Link to="/login" className="uppercase">Login</Link>
-            )
-          }
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className="uppercase">Logout</button>
+          ) : (
+            <Link to="/login" className="uppercase">Login</Link>
+          )}
         </ul>
       </div>
     </div>

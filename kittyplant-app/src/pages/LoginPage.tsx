@@ -15,11 +15,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from 'sonner'; 
-import { login, register as registerUser } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 function Login(){
     const navigate = useNavigate();
+    const { login, register } = useAuth();
     const [activeTab, setActiveTab] = useState<string>('login');
     const [usernameLogin, setUsernameLogin] = useState<string>('');
     const [passwordLogin, setPasswordLogin] = useState<string>('');
@@ -31,9 +32,7 @@ function Login(){
 
     const handleLogin = async () => {
         try {    
-
             await login(usernameLogin, passwordLogin);
-            toast.success("Login successful!");
             navigate("/plants");
         } catch (err: unknown) {
             const errorMessage = axios.isAxiosError(err) 
@@ -50,8 +49,7 @@ function Login(){
         }
 
         try {
-            await registerUser(usernameRegister, passwordRegister);
-            toast.success("Registration successful! You can now log in.");
+            await register(usernameRegister, passwordRegister);
             
             setUsernameLogin(usernameRegister);
             setPasswordLogin('');

@@ -5,7 +5,9 @@ export interface Device {
     device_id: string;
     name: string;
     waterLevel: number;
+    moistureLevel: number;
     plant: string;
+    lastTimeWatered?: string;
 }
 
 export interface NewDevice {
@@ -28,10 +30,23 @@ export async function getDevices() {
 
 export async function addDevice(device: NewDevice) {
     try {
+        console.log("Adding device:", device);
         const response = await api.post("/v1/devices", device);
         return response.data;
     } catch (error) {
         console.error("Failed to add device:", error);
+        throw error;
+    }
+}
+
+export async function getDeviceHistory(deviceName: string, period: 'day' | 'week' | 'month' = 'day') {
+    try {
+        const response = await api.get(`/v1/devices/${deviceName}/history`, {
+            params: { period }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch device history:", error);
         throw error;
     }
 }

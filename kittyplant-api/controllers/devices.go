@@ -48,14 +48,15 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 		deviceData, err := c.cache.Get(redisKey)
 
 		var waterLevel int
+		var moistureLevel int
+		var lastTimeWatered string
 		if err != nil {
 
 			log.Printf("%s", err.Error())
 			waterLevel = 0
 		} else {
 
-			var redisData map[string]interface{}
-			redisData = make(map[string]interface{})
+			redisData := make(map[string]interface{})
 
 			if err := json.Unmarshal([]byte(deviceData), &redisData); err != nil {
 				log.Printf("Failed to unmarshal Redis data: %s", err)
@@ -63,15 +64,23 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 				if wl, ok := redisData["water_level"].(float64); ok {
 					waterLevel = int(wl)
 				}
+				if ml, ok := redisData["moisture"].(float64); ok {
+					moistureLevel = int(ml)
+				}
+				if lw, ok := redisData["last_watered_str"].(string); ok {
+					lastTimeWatered = lw
+				}
 			}
 
 		}
 
 		devices = append(devices, map[string]interface{}{
-			"name":       device.DeviceName,
-			"status":     "online",
-			"plant":      device.Plant.Name,
-			"waterLevel": waterLevel,
+			"name":            device.DeviceName,
+			"status":          "online",
+			"plant":           device.Plant.Name,
+			"waterLevel":      waterLevel,
+			"moistureLevel":   moistureLevel,
+			"lastTimeWatered": lastTimeWatered,
 		})
 	}
 
