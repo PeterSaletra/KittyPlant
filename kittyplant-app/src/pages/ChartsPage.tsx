@@ -29,20 +29,20 @@ import {
 export const description = "An area chart with gradient fill"
 
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { month: "January", moisture: 30, water: 80 },
+  { month: "February", moisture: 40, water: 20 },
+  { month: "March", moisture: 37, water: 20 },
+  { month: "April", moisture: 73, water: 90 },
+  { month: "May", moisture: 50, water: 30 },
+  { month: "June", moisture: 14, water: 40 },
 ]
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  moisture: {
+    label: "Moisture",
     color: "var(--kitty-dark-pink)",
   },
-  mobile: {
-    label: "Mobile",
+  water: {
+    label: "Water",
     color: "var(--kitty-crayola)",
   },
 } satisfies ChartConfig
@@ -57,7 +57,7 @@ function ProfilePage() {
                 <Card className="max-w-3xl mx-auto mt-5">
                     <CardHeader>
                         <CardTitle className='flex justify-between items-center gap-2'>
-                            Area Chart - Gradient
+                            Water and Moisture Levels
                             <Select>
                                 <SelectTrigger className="bg-(--kitty-white)">
                                     <SelectValue placeholder="Select a plant" />
@@ -93,45 +93,45 @@ function ProfilePage() {
                             />
                             <ChartTooltip cursor={false} content={<ChartTooltipContent className='bg-(--kitty-white)'/>} />
                             <defs>
-                            <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="fillMoisture" x1="0" y1="0" x2="0" y2="1">
                                 <stop
                                 offset="5%"
-                                stopColor="var(--color-desktop)"
+                                stopColor="var(--color-moisture)"
                                 stopOpacity={0.8}
                                 />
                                 <stop
                                 offset="95%"
-                                stopColor="var(--color-desktop)"
+                                stopColor="var(--color-moisture)"
                                 stopOpacity={0.1}
                                 />
                             </linearGradient>
-                            <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="fillWater" x1="0" y1="0" x2="0" y2="1">
                                 <stop
                                 offset="5%"
-                                stopColor="var(--color-mobile)"
+                                stopColor="var(--color-water)"
                                 stopOpacity={0.8}
                                 />
                                 <stop
                                 offset="95%"
-                                stopColor="var(--color-mobile)"
+                                stopColor="var(--color-water)"
                                 stopOpacity={0.1}
                                 />
                             </linearGradient>
                             </defs>
                             <Area
-                            dataKey="mobile"
+                            dataKey="water"
                             type="natural"
-                            fill="url(#fillMobile)"
+                            fill="url(#fillWater)"
                             fillOpacity={0.4}
-                            stroke="var(--color-mobile)"
+                            stroke="var(--color-water)"
                             stackId="a"
                             />
                             <Area
-                            dataKey="desktop"
+                            dataKey="moisture"
                             type="natural"
-                            fill="url(#fillDesktop)"
+                            fill="url(#fillMoisture)"
                             fillOpacity={0.4}
-                            stroke="var(--color-desktop)"
+                            stroke="var(--color-moisture)"
                             stackId="a"
                             />
                         </AreaChart>
@@ -140,9 +140,6 @@ function ProfilePage() {
                     <CardFooter>
                         <div className="flex w-full items-start gap-2 text-sm">
                         <div className="grid gap-2">
-                            <div className="flex items-center gap-2 leading-none font-medium">
-                            Trending up by 5.2% this month
-                            </div>
                             <div className="text-muted-foreground flex items-center gap-2 leading-none">
                             January - June 2024
                             </div>
