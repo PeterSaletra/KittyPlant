@@ -17,9 +17,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register/>} />
-          <Route path="/plants" element={<ProtectedRoute><PlantsPage /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/charts" element={<ProtectedRoute><ChartsPage /></ProtectedRoute>} />
+          <Route path="/plants" element={<PlantsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/charts" element={<ChartsPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         <Toaster position="top-right" richColors closeButton/>

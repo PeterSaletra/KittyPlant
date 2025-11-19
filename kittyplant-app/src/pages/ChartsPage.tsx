@@ -24,9 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useState } from 'react'
 
 
-export const description = "An area chart with gradient fill"
+export const description = "View detailed charts of your plant's water and moisture levels over time to help you keep them healthy and thriving.";
 
 const chartData = [
   { month: "January", moisture: 30, water: 80 },
@@ -36,6 +37,13 @@ const chartData = [
   { month: "May", moisture: 50, water: 30 },
   { month: "June", moisture: 14, water: 40 },
 ]
+
+const deviceList = [
+    { id: 1, name: "Custom Device Name 1" },
+    { id: 2, name: "Custom Device Name 2" },
+    { id: 3, name: "Custom Device Name 3" },
+]
+
 const chartConfig = {
   moisture: {
     label: "Moisture",
@@ -49,6 +57,19 @@ const chartConfig = {
 
 
 function ProfilePage() {
+    const [selectedDevice, setSelectedDevice] = useState(deviceList[0].name);
+    const [selectedTime, setSelectedTime] = useState("day");
+
+    const handleChangeTime = (value: string) => {
+        setSelectedTime(value);
+    }
+
+    const handleDeviceChange = (value: string) => {
+        console.log("Selected device:", value);
+        setSelectedDevice(value);
+        // You can add logic here to update the chart data based on the selected device
+    }
+
     return (
         <div>
             <Header />
@@ -57,20 +78,35 @@ function ProfilePage() {
                 <Card className="max-w-3xl mx-auto mt-5">
                     <CardHeader>
                         <CardTitle className='flex justify-between items-center gap-2'>
+                            <div>
                             Water and Moisture Levels
-                            <Select>
-                                <SelectTrigger className="bg-(--kitty-white)">
-                                    <SelectValue placeholder="Select a plant" />
-                                </SelectTrigger>
-                                <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'>
-                                    <SelectItem value="light">Custom Device Name 1</SelectItem>
-                                    <SelectItem value="dark">Custom Device Name 2</SelectItem>
-                                    <SelectItem value="system">Custom Device Name 3</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            </div>
+                            <div className='flex gap-4'>
+                                <Select value={selectedTime} onValueChange={(e) => handleChangeTime(e)}>
+                                    <SelectTrigger className="bg-(--kitty-white)">
+                                        <SelectValue placeholder="Select time period" />
+                                    </SelectTrigger>
+                                    <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'  >
+                                        <SelectItem key="day" value="day">Day</SelectItem>
+                                        <SelectItem key="week" value="week">Week</SelectItem>
+                                        <SelectItem key="month" value="month">Month</SelectItem>
+                                        <SelectItem key="year" value="year">Year</SelectItem>                                    
+                                    </SelectContent>
+                                </Select>
+                                <Select value={selectedDevice} onValueChange={(e) => handleDeviceChange(e)}>
+                                    <SelectTrigger className="bg-(--kitty-white)">
+                                        <SelectValue placeholder="Select a device" />
+                                    </SelectTrigger>
+                                    <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'  >
+                                        {deviceList.map((device) => (
+                                            <SelectItem key={device.id} value={device.name}>{device.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </CardTitle>
                         <CardDescription>
-                        Showing total visitors for the last 6 months
+                        Showing moisture and water levels for {selectedDevice} over the last {selectedTime}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

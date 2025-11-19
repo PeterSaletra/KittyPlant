@@ -34,30 +34,12 @@ import {
 function PlantsPage() {
   const [waterLevels, setWaterLevels] = useState<number[]>([75, 45, 60, 20]);
   const [moistureLevels, setMoistureLevels] = useState<number[]>([65, 40, 55, 15]);
-  const [lastWatered, setLastWatered] = useState<string[]>([
-    new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
-    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // 3 days ago
-  ]);
-  const [deviceName, setDeviceName] = useState<string[]>([
-    'Monstera in Living Room',
-    'Aloe in Bedroom', 
-    'Figowiec in Kitchen',
-    'Sansewieria in Office'
-  ]);
+  const [lastWatered, setLastWatered] = useState<string[]>([]);
+  const [deviceName, setDeviceName] = useState<string[]>([]);
   const [newDeviceName, setNewDeviceName] = useState('');
   const [newID, setID] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
-  const [plantsName, setPlantsName] = useState<string[]>([
-    'Alokazja',
-    'Aloes Zwyczajny',
-    'Monstera Dziurawa',
-    'Skrzydłokwiat',
-    'Zamiokulkas Zamiolistny',
-    'Figowiec Dębolistny',
-    'Sansewieria Gwinejska'
-  ]);
+  const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
   const [customPlantName, setCustomPlantName] = useState('');
   const [customWaterLevels, setCustomWaterLevels] = useState<[number, number]>([0, 100]);
@@ -94,17 +76,15 @@ function PlantsPage() {
   };
 
   useEffect(() => {
-    // Uncomment these lines when backend is ready
-    // handleUpdateWaterLevel();
-    // handleGetPlants();
+    handleUpdateWaterLevel();
+    handleGetPlants();
   }, []);
 
   useEffect(() => {
-    // Uncomment for real-time updates when backend is ready
-    // const interval = setInterval(() => {
-    //   handleUpdateWaterLevel();
-    // }, 5000);
-    // return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      handleUpdateWaterLevel();
+    }, 5000);
+    return () => clearInterval(interval);
     }
   , []);
 
