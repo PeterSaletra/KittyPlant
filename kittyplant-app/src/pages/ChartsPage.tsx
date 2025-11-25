@@ -25,17 +25,67 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useState } from 'react'
-
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 export const description = "View detailed charts of your plant's water and moisture levels over time to help you keep them healthy and thriving.";
 
-const chartData = [
-  { month: "January", moisture: 30, water: 80 },
-  { month: "February", moisture: 40, water: 20 },
-  { month: "March", moisture: 37, water: 20 },
-  { month: "April", moisture: 73, water: 90 },
-  { month: "May", moisture: 50, water: 30 },
-  { month: "June", moisture: 14, water: 40 },
+const chartDataDay = [
+    { time: "00:00", moisture: 45, water: 60 },
+    { time: "01:00", moisture: 44, water: 59 },
+    { time: "02:00", moisture: 43, water: 58 },
+    { time: "03:00", moisture: 42, water: 58 },
+    { time: "04:00", moisture: 42, water: 58 },
+    { time: "05:00", moisture: 43, water: 59 },
+    { time: "06:00", moisture: 45, water: 61 },
+    { time: "07:00", moisture: 47, water: 63 },
+    { time: "08:00", moisture: 48, water: 65 },
+    { time: "09:00", moisture: 49, water: 66 },
+    { time: "10:00", moisture: 50, water: 68 },
+    { time: "11:00", moisture: 51, water: 69 },
+    { time: "12:00", moisture: 52, water: 70 },
+    { time: "13:00", moisture: 52, water: 70 },
+    { time: "14:00", moisture: 51, water: 69 },
+    { time: "15:00", moisture: 50, water: 68 },
+    { time: "16:00", moisture: 50, water: 68 },
+    { time: "17:00", moisture: 49, water: 66 },
+    { time: "18:00", moisture: 48, water: 65 },
+    { time: "19:00", moisture: 47, water: 63 },
+    { time: "20:00", moisture: 46, water: 62 },
+    { time: "21:00", moisture: 46, water: 62 },
+    { time: "22:00", moisture: 45, water: 61 },
+    { time: "23:00", moisture: 45, water: 60 },
+]
+
+const chartDataWeek = [
+  { time: "Mon", moisture: 45, water: 60 },
+  { time: "Tue", moisture: 48, water: 65 },
+  { time: "Wed", moisture: 42, water: 55 },
+  { time: "Thu", moisture: 50, water: 68 },
+  { time: "Fri", moisture: 47, water: 63 },
+  { time: "Sat", moisture: 52, water: 72 },
+  { time: "Sun", moisture: 49, water: 67 },
+]
+
+const chartDataMonth = [
+  { time: "Week 1", moisture: 30, water: 80 },
+  { time: "Week 2", moisture: 40, water: 70 },
+  { time: "Week 3", moisture: 37, water: 65 },
+  { time: "Week 4", moisture: 45, water: 75 },
+]
+
+const chartDataYear = [
+  { time: "Jan", moisture: 30, water: 80 },
+  { time: "Feb", moisture: 40, water: 70 },
+  { time: "Mar", moisture: 37, water: 65 },
+  { time: "Apr", moisture: 73, water: 90 },
+  { time: "May", moisture: 50, water: 75 },
+  { time: "Jun", moisture: 44, water: 68 },
+  { time: "Jul", moisture: 38, water: 62 },
+  { time: "Aug", moisture: 42, water: 70 },
+  { time: "Sep", moisture: 48, water: 78 },
+  { time: "Oct", moisture: 52, water: 82 },
+  { time: "Nov", moisture: 46, water: 74 },
+  { time: "Dec", moisture: 40, water: 68 },
 ]
 
 const deviceList = [
@@ -56,12 +106,57 @@ const chartConfig = {
 } satisfies ChartConfig
 
 
+
 function ProfilePage() {
     const [selectedDevice, setSelectedDevice] = useState(deviceList[0].name);
     const [selectedTime, setSelectedTime] = useState("day");
+    const [chartRange, setChartRange] = useState(new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }));
+    const [currentChartData, setCurrentChartData] = useState(chartDataDay);
 
     const handleChangeTime = (value: string) => {
         setSelectedTime(value);
+        switch (value) {
+            case "day": {
+                const now = new Date().toLocaleDateString(
+                    "en-US", 
+                    { 
+                        month: "long",
+                        weekday: "long",
+                        day: "numeric",
+                        year: "numeric"
+                    });
+                setChartRange(now);
+                setCurrentChartData(chartDataDay);
+                break;
+            }
+            case "week":{
+                const now = new Date();
+                const first = now.getDate() - now.getDay() + 1;
+                const last = first + 6;
+                const firstday = new Date(now.setDate(first)).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+                const lastday = new Date(now.setDate(last)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+                setChartRange(`${firstday} - ${lastday}`);
+                setCurrentChartData(chartDataWeek);
+                break;
+            }
+            case "month": { 
+                const now = new Date();
+                const month = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+                setChartRange(`${month}`);
+                setCurrentChartData(chartDataMonth);
+                break;
+            }
+            case "year": {
+                const now = new Date();
+                const year = now.getFullYear();
+                setChartRange(`${year}`);
+                setCurrentChartData(chartDataYear);
+                break;
+            }
+            default:
+                setChartRange("January - June 2024");
+                break;
+        }
     }
 
     const handleDeviceChange = (value: string) => {
@@ -90,7 +185,7 @@ function ProfilePage() {
                                         <SelectItem key="day" value="day">Day</SelectItem>
                                         <SelectItem key="week" value="week">Week</SelectItem>
                                         <SelectItem key="month" value="month">Month</SelectItem>
-                                        <SelectItem key="year" value="year">Year</SelectItem>                                    
+                                        <SelectItem key="year" value="year">Year</SelectItem>                                 
                                     </SelectContent>
                                 </Select>
                                 <Select value={selectedDevice} onValueChange={(e) => handleDeviceChange(e)}>
@@ -113,7 +208,7 @@ function ProfilePage() {
                         <ChartContainer config={chartConfig}>
                         <AreaChart
                             accessibilityLayer
-                            data={chartData}
+                            data={currentChartData}
                             margin={{
                             left: 12,
                             right: 12,
@@ -121,11 +216,12 @@ function ProfilePage() {
                         >
                             <CartesianGrid vertical={false} />
                             <XAxis
-                            dataKey="month"
+                            dataKey="time"
                             tickLine={false}
                             axisLine={false}
-                            tickMargin={8}
-                            tickFormatter={(value) => value.slice(0, 3)}
+                            interval="preserveStartEnd"
+                            textAnchor="middle"
+                            tickMargin={10}
                             />
                             <ChartTooltip cursor={false} content={<ChartTooltipContent className='bg-(--kitty-white)'/>} />
                             <defs>
@@ -174,12 +270,16 @@ function ProfilePage() {
                         </ChartContainer>
                     </CardContent>
                     <CardFooter>
-                        <div className="flex w-full items-start gap-2 text-sm">
-                        <div className="grid gap-2">
-                            <div className="text-muted-foreground flex items-center gap-2 leading-none">
-                            January - June 2024
+                        <div className="flex w-full  text-sm flex-col">
+                            <div className='flex gap-2 items-center justify-center mb-2 text-muted-foreground'>
+                                <button className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'>
+                                    <ArrowBackIosIcon className='text-sm ml-2.5'  />
+                                </button>
+                                {chartRange}
+                                <button className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'>
+                                    <ArrowBackIosIcon className='rotate-180 mr-2.5'/>
+                                </button>
                             </div>
-                        </div>
                         </div>
                     </CardFooter>
                 </Card>
