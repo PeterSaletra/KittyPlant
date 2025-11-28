@@ -7,6 +7,8 @@
 #include "helpers.h"
 #include "wifi_portal.h"
 #include "water_sensor.h"
+#include "nvs_helper.h"
+#include "wifi_helper.h"
 
 
 WiFiClient espClient;
@@ -45,32 +47,17 @@ void callback(String &topic, String &payload) {
 void setup() {
   Serial.begin(115200);
   Wire.begin();
+
+
   pinMode(PIN_RED,   OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
   pinMode(PIN_BLUE,  OUTPUT);
   pinMode(PIN_RELAY, OUTPUT);
 
-  WiFi.setHostname(hostname);
-  WiFi.mode(WIFI_AP_STA);
+  init_nvs();
+  init_preferences("kitty-namespace");
 
-  WiFi.softAP(ssidAP, passwordAP);
-  
-  run_wifi_portal();
-
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password, 0, NULL, true);
-
-  readMacAddress();
-
-  while (WiFi.status() != WL_CONNECTED) {
-    blinkColor(0, 0, 255);
-    Serial.print(".");
-  }
-  Serial.println("\nConnected to Wi-Fi!");
-  Serial.print("ESP32 IP Address: ");
-  Serial.println(WiFi.localIP());
+  setup_wifi();
 
   client.begin(mqtt_server, port, espClient);
   client.connect(hostname, mqtt_user, mqtt_password);
@@ -90,7 +77,7 @@ void loop() {
   client.loop();
 
   if (WiFi.status() != WL_CONNECTED) {
-    signalNoWifiConnection(ssid, password);
+    reconnect_wifi();
   } else {
     int moisture_raw_value = analogRead(PIN_SENSOR);
     Serial.print("Sensor Value: ");
@@ -136,7 +123,7 @@ void loop() {
     JsonDocument doc;
     doc["moisture_level"] = moisture_level;
     doc["water_section"] = water_level;
-    doc["relay_activated"] = (relayActive && !relayWasActive) ? true : false;
+    doc["relay_activated"] = (relayActive && !relayWasActive) ? 1 : 0;
 
     size_t n = serializeJson(doc, buffer);
     client.publish(topic, buffer, n);
