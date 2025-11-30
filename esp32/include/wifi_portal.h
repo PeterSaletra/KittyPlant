@@ -6,6 +6,7 @@
 #include "web_page.h"
 #include "helpers.h"
 #include "nvs_helper.h"
+#include "spiffs_helper.h"
 
 void run_wifi_portal();
 

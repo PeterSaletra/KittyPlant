@@ -21,7 +21,7 @@ void handleConnect(){
     gotCredentials = true;
 }
 
-inline void run_wifi_portal(){
+void run_wifi_portal(){
     Serial.println("Access Point started");
     Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP());

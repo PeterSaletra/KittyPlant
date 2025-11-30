@@ -9,7 +9,7 @@
 #include "water_sensor.h"
 #include "nvs_helper.h"
 #include "wifi_helper.h"
-
+#include "spiffs_helper.h"
 
 WiFiClient espClient;
 MQTTClient client(512);
@@ -48,6 +48,7 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
 
+  init_spiffs();
 
   pinMode(PIN_RED,   OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
