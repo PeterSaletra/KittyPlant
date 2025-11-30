@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <Wire.h>
 #include <MQTTClient.h>
 #include "config.h"
@@ -11,7 +11,7 @@
 #include "wifi_helper.h"
 #include "spiffs_helper.h"
 
-WiFiClient espClient;
+WiFiClientSecure espClient;
 MQTTClient client(512);
 
 bool relayWasActive = false;
@@ -21,10 +21,9 @@ uint32_t sleepDuration = SLEEP_DURATION_SEC;
 
 void reconnect() {
   while (!client.connected()) {
-    client.connect(hostname, mqtt_user, mqtt_password);
+    client.connect(hostname);
   }
 }
-
 
 void callback(String &topic, String &payload) {
   Serial.print("Message arrived [");
@@ -60,8 +59,16 @@ void setup() {
 
   setup_wifi();
 
+  String ca_cert = read_ca_cert();
+  String client_cert = read_client_cert();
+  String private_key = read_client_key();
+
+  espClient.setCACert(ca_cert.c_str());
+  espClient.setCertificate(client_cert.c_str());
+  espClient.setPrivateKey(private_key.c_str());
+
   client.begin(mqtt_server, port, espClient);
-  client.connect(hostname, mqtt_user, mqtt_password);
+  client.connect(hostname);
   client.onMessage(callback);
   client.subscribe(topic);
 

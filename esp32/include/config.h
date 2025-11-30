@@ -8,10 +8,10 @@
 #define PIN_RELAY  26 // SVN
 
 #define WSENSOR_HIGH_ADDR   0x78
-#define WSENSOR_LOW_ADDR   0x77
+#define WSENSOR_LOW_ADDR    0x77
 
-#define WSENSOR_NO_TOUCH       0xFE
-#define WSENSOR_THRESHOLD      100
+#define WSENSOR_NO_TOUCH    0xFE
+#define WSENSOR_THRESHOLD   100
 
 #define SLEEP_DURATION_SEC 5
 #define uS_TO_S_FACTOR 1000000ULL
@@ -27,7 +27,5 @@ const char* passwordAP = "testtest";
 //MQTT server
 const char* mqtt_server = "192.168.1.103";
 const int port = 1883;
-const char* mqtt_user = "kitty_mqtt";
-const char* mqtt_password = "password";
 
 #endif
