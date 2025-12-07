@@ -81,3 +81,52 @@ func (c *Cache) Get(key string) (string, error) {
 	_, err = pipe.Exec(context.Background())
 	return result, err
 }
+
+func (c *Cache) CreateTimeSeries(key string, retenstion string, labels map[string]string) error {
+	ctx := context.Background()
+
+	var labelArgs []interface{}
+	for k, v := range labels {
+		labelArgs = append(labelArgs, k, v)
+	}
+
+	args := []interface{}{"TS.CREATE", key, "RETENTION", retenstion}
+	if len(labelArgs) > 0 {
+		args = append(args, "LABELS")
+		args = append(args, labelArgs...)
+	}
+
+	_, err := c.redisClient.Do(ctx, args...).Result()
+
+	return err
+}
+
+func (c *Cache) AddTimeSeriesDataPoint(key string, timestamp int64, value float64) error {
+	ctx := context.Background()
+	_, err := c.redisClient.Do(ctx, "TS.ADD", key, timestamp, value).Result()
+	return err
+}
+
+func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int64) ([]interface{}, error) {
+	ctx := context.Background()
+
+	var args []interface{}
+	args = []interface{}{"TS.MRANGE", fromTimestamp, toTimestamp, "FILTER", filter}
+
+	if aggregation != "" && bucketDuration > 0 {
+		args = append(args, "AGGREGATION", aggregation, bucketDuration)
+	}
+
+	result, err := c.redisClient.Do(ctx, args...).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return result.([]interface{}), nil
+}
+
+func (c *Cache) TimeSeriesExists(key string) bool {
+	ctx := context.Background()
+	result := c.redisClient.Exists(ctx, key).Val()
+	return result > 0
+}

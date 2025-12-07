@@ -30,6 +30,7 @@ func (h *HttpServer) prepareRoutes() {
 		{
 			devices.GET("", h.c.GetDevices)
 			devices.POST("", h.c.AddNewDevice)
+			devices.GET("/history", h.c.GetDeviceData)
 
 		}
 		plants := api.Group("/plants")

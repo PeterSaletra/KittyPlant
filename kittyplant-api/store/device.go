@@ -40,6 +40,14 @@ func (d *Database) GetDevicesCountAssignedToUserID(userID uint) (count int64, er
 	return count, nil
 }
 
+func (d *Database) CheckDeviceBelongsToUser(userID uint, deviceID string) (belongs bool, err error) {
+	if err = d.DB.Model(&Device{}).Joins("JOIN relations on devicees.id = relacions..device_id").Where("relations.user_id = ?", userID).Where("devices.id = ?", deviceID).Find(&belongs).Error; err != nil {
+		return false, err
+	}
+
+	return belongs, nil
+}
+
 func (d *Database) AddDevice(deviceID string, device *Device) (err error) {
 	if err = d.DB.Create(device).Error; err != nil {
 		return err

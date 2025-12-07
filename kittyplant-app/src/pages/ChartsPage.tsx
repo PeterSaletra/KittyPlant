@@ -107,7 +107,7 @@ const chartConfig = {
 
 
 
-function ProfilePage() {
+function ChartsPage() {
     const [selectedDevice, setSelectedDevice] = useState(deviceList[0].name);
     const [selectedTime, setSelectedTime] = useState("day");
     const [chartRange, setChartRange] = useState(new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }));
@@ -292,4 +292,4 @@ function ProfilePage() {
     );
 }
 
-export default ProfilePage;
+export default ChartsPage;

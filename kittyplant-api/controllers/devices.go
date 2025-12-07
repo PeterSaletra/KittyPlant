@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"kittyplant-api/store"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -125,6 +127,7 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 					ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add plant"})
 					return
 				}
+
 			} else {
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": "Plant does not exist and water levels are not provided"})
 				return
@@ -154,7 +157,101 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		return
 	}
 
+	err = c.cache.CreateTimeSeries(newDevice.DeviceID+":water", "0", map[string]string{
+		"device": newDevice.DeviceID,
+		"type":   "water",
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create device timeseries"})
+		return
+	}
+	err = c.cache.CreateTimeSeries(newDevice.DeviceID+":moisture", "0", map[string]string{
+		"device": newDevice.DeviceID,
+		"type":   "moisture",
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create device timeseries"})
+		return
+	}
+
 	c.mqtt.Subscribe(newDevice.DeviceID + "/data")
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Device added successfully"})
+}
+
+func (c *Controllers) GetDeviceData(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+
+	userID := session.Get(userIDSessionKey)
+	if userID == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	deviceID := ctx.Query("device_id")
+	startStr := ctx.Query("start")
+	endStr := ctx.Query("end")
+	rangeType := ctx.Query("range")
+
+	belongs, err := c.DB.CheckDeviceBelongsToUser(userID.(uint), deviceID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to veryfie device"})
+		return
+	}
+
+	if !belongs {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This device does not belong to you"})
+		return
+	}
+
+	start, err := time.Parse(time.RFC3339, startStr)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unavble to parse start time"})
+		return
+	}
+
+	end, err := time.Parse(time.RFC3339, endStr)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unavble to parse start time"})
+		return
+	}
+
+	var aggregation string = "avg"
+	var bucketDuration int64
+
+	switch rangeType {
+	case "day":
+		bucketDuration = 60 * 60 * 1000 // 1 hour in milliseconds
+	case "week":
+		bucketDuration = 24 * 60 * 60 * 1000 // 1 day in milliseconds
+	case "month":
+		bucketDuration = 7 * 24 * 60 * 60 * 1000 // 1 week in milliseconds
+	case "year":
+		bucketDuration = 30 * 24 * 60 * 60 * 1000 // 1 month in milliseconds
+	default:
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid range type"})
+		return
+	}
+
+	filterWater := fmt.Sprintf("device=%s type=%s", deviceID, "water")
+	filterMoisture := fmt.Sprintf("device=%s type=%s", deviceID, "moisture")
+
+	dataWater, err := c.cache.GetMultiTimeSeriesRange(filterWater, start.UnixMilli(), end.UnixMilli(), aggregation, bucketDuration)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to get water data"})
+		return
+	}
+
+	dataMoisture, err := c.cache.GetMultiTimeSeriesRange(filterMoisture, start.UnixMilli(), end.UnixMilli(), aggregation, bucketDuration)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to get moisture data"})
+		return
+	}
+
+	// TOOD: Process data to a more friendly format
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"water_data":    dataWater,
+		"moisture_data": dataMoisture,
+	})
 }
