@@ -1,10 +1,12 @@
 package mqtt
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"kittyplant-api/cache"
-	"kittyplant-api/config"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -30,9 +32,20 @@ func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
 	log.Printf("Connecting to MQTT broker at %s", broker)
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
-		SetClientID("kittyplant_mqtt_client").
-		SetUsername(config.AppConfig.BrokerUser).
-		SetPassword(config.AppConfig.BrokerPassword)
+		SetClientID("kittyplant_mqtt_client")
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: false,
+	}
+
+	if caCert, err := os.ReadFile("conf/mosquitto/certs/ca.crt"); err == nil {
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+		tlsConfig.RootCAs = caCertPool
+	}
+
+	opts.SetTLSConfig(tlsConfig)
+
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 	})
