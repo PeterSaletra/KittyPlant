@@ -165,6 +165,7 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create device timeseries"})
 		return
 	}
+
 	err = c.cache.CreateTimeSeries(newDevice.DeviceID+":moisture", "0", map[string]string{
 		"device": newDevice.DeviceID,
 		"type":   "moisture",
@@ -217,7 +218,7 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 	}
 
 	var aggregation string = "avg"
-	var bucketDuration int64
+	var bucketDuration int
 
 	switch rangeType {
 	case "day":
@@ -248,7 +249,9 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 		return
 	}
 
-	// TOOD: Process data to a more friendly format
+	var result = make([]map[string]interface{})
+
+	
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"water_data":    dataWater,

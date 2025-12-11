@@ -107,22 +107,33 @@ func (c *Cache) AddTimeSeriesDataPoint(key string, timestamp int64, value float6
 	return err
 }
 
-func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int64) ([]interface{}, error) {
+func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int) (map[string][]interface{}, error) {
 	ctx := context.Background()
 
-	var args []interface{}
-	args = []interface{}{"TS.MRANGE", fromTimestamp, toTimestamp, "FILTER", filter}
+	// // var args []interface{}
+	// args = []interface{}{"TS.MRANGE", fromTimestamp, toTimestamp, "FILTER", filter}
 
-	if aggregation != "" && bucketDuration > 0 {
-		args = append(args, "AGGREGATION", aggregation, bucketDuration)
-	}
+	// if aggregation != "" && bucketDuration > 0 {
+	// 	args = append(args, "AGGREGATION", aggregation, bucketDuration)
+	// }
 
-	result, err := c.redisClient.Do(ctx, args...).Result()
+	result, err := c.redisClient.TSMRangeWithArgs(
+		ctx,
+		int(fromTimestamp),
+		int(toTimestamp),
+		[]string{filter},
+		&redis.TSMRangeOptions{
+			Reducer:        aggregation,
+			BucketDuration: int(bucketDuration),
+		},
+	).Result()
+	// result, err := c.redisClient.Do(ctx, args...).Result()
+
 	if err != nil {
 		return nil, err
 	}
 
-	return result.([]interface{}), nil
+	return result, nil
 }
 
 func (c *Cache) TimeSeriesExists(key string) bool {
