@@ -148,25 +148,6 @@ func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestam
 		return nil, err
 	}
 
-	log.Printf("TS RANGE RESULT TYPE: %T", result)
-	log.Printf("TS RANGE RESULT: %+v", result)
-
-	// Display detailed structure
-	if resultMap, ok := result.(map[interface{}]interface{}); ok {
-		log.Printf("Result is a map with %d keys", len(resultMap))
-		for key, value := range resultMap {
-			log.Printf("Key TYPE: %T, Key VALUE: %+v", key, key)
-			log.Printf("Value TYPE: %T, Value VALUE: %+v", value, value)
-
-			if valueSlice, ok := value.([]interface{}); ok {
-				log.Printf("  Value is a slice with %d items", len(valueSlice))
-				for i, item := range valueSlice {
-					log.Printf("    Item[%d] TYPE: %T, VALUE: %+v", i, item, item)
-				}
-			}
-		}
-	}
-
 	return result, nil
 }
 
