@@ -46,34 +46,39 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 
 	for _, device := range devicesdb {
 		redisKey := device.DeviceName + "/data"
-
-		deviceData, err := c.cache.Get(redisKey)
+		log.Printf("Redis key: %s", redisKey)
 
 		var waterLevel int
 		var moistureLevel int
 		var lastTimeWatered string
+
+		deviceData, err := c.cache.GetObjectAll(redisKey)
 		if err != nil {
-
-			log.Printf("%s", err.Error())
+			log.Printf("Failed to get data from cache for %s: %s", redisKey, err.Error())
 			waterLevel = 0
+			moistureLevel = 0
 		} else {
-
-			redisData := make(map[string]interface{})
-
-			if err := json.Unmarshal([]byte(deviceData), &redisData); err != nil {
-				log.Printf("Failed to unmarshal Redis data: %s", err)
+			jsonData, err := json.Marshal(deviceData)
+			if err != nil {
+				log.Printf("Failed to marshal Redis data: %s", err)
 			} else {
-				if wl, ok := redisData["water_level"].(float64); ok {
-					waterLevel = int(wl)
-				}
-				if ml, ok := redisData["moisture"].(float64); ok {
-					moistureLevel = int(ml)
-				}
-				if lw, ok := redisData["last_watered_str"].(string); ok {
-					lastTimeWatered = lw
+				log.Printf("Redis data: %s", string(jsonData))
+
+				redisData := make(map[string]interface{})
+				if err := json.Unmarshal(jsonData, &redisData); err != nil {
+					log.Printf("Failed to unmarshal Redis data: %s", err)
+				} else {
+					if wl, ok := redisData["water_level"].(float64); ok {
+						waterLevel = int(wl)
+					}
+					if ml, ok := redisData["moisture_level"].(float64); ok {
+						moistureLevel = int(ml)
+					}
+					if lw, ok := redisData["last_watered_str"].(string); ok {
+						lastTimeWatered = lw
+					}
 				}
 			}
-
 		}
 
 		devices = append(devices, map[string]interface{}{
@@ -196,6 +201,7 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 
 	belongs, err := c.DB.CheckDeviceBelongsToUser(userID.(uint), deviceID)
 	if err != nil {
+		log.Printf("Failed to verify device ownership: %v", err)
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to veryfie device"})
 		return
 	}
@@ -207,15 +213,18 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 
 	start, err := time.Parse(time.RFC3339, startStr)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unavble to parse start time"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unable to parse start time"})
 		return
 	}
 
 	end, err := time.Parse(time.RFC3339, endStr)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unavble to parse start time"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unable to parse end time"})
 		return
 	}
+
+	log.Printf("Querying from %d to %d", start.UnixMilli(), end.UnixMilli())
+	log.Printf("Querying from %d to %d", int(start.UnixMilli()), int(end.UnixMilli()))
 
 	var aggregation string = "avg"
 	var bucketDuration int
@@ -249,9 +258,8 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 		return
 	}
 
-	var result = make([]map[string]interface{})
-
-	
+	log.Printf("Water data: %v", dataWater)
+	log.Printf("Moisture data: %v", dataMoisture)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"water_data":    dataWater,

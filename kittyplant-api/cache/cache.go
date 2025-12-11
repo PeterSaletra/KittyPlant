@@ -2,6 +2,9 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -13,9 +16,9 @@ type Cache struct {
 
 func NewCache(addr string, password string) *Cache {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       0, // use default DB
+		Addr: addr,
+		// Password: password,
+		DB: 0, // use default DB
 	})
 	return &Cache{
 		redisClient: redisClient,
@@ -23,28 +26,38 @@ func NewCache(addr string, password string) *Cache {
 }
 
 func (c *Cache) SetObject(key string, value interface{}, expiration time.Duration) error {
-	pipe := c.redisClient.Pipeline()
-	pipe.HSet(context.Background(), key, value)
-	if expiration > 0 {
-		pipe.Expire(context.Background(), key, expiration)
+	// pipe := c.redisClient.Pipeline()
+	// Serialize the value to JSON
+	jsonData, err := json.Marshal(value)
+	if err != nil {
+		return err
 	}
-	_, err := pipe.Exec(context.Background())
+
+	err = c.redisClient.Set(context.Background(), key, jsonData, expiration).Err()
+	// if expiration > 0 {
+	// pipe.Expire(context.Background(), key, expiration)
+	// }
+	// _, err = pipe.Exec(context.Background())
 	return err
 }
 
 func (c *Cache) GetObjectAll(key string) (interface{}, error) {
-	var result interface{}
+	ctx := context.Background()
 
-	pipe := c.redisClient.Pipeline()
-	pipe.HGetAll(context.Background(), key).Scan(&result)
-
-	ttl, err := pipe.TTL(context.Background(), key).Result()
-	if err != nil && ttl > 0 {
-		pipe.Expire(context.Background(), key, ttl)
+	// Get the JSON string
+	jsonData, err := c.redisClient.Get(ctx, key).Result()
+	if err != nil {
+		return nil, err
 	}
 
-	_, err = pipe.Exec(context.Background())
-	return result, err
+	// Unmarshal to a generic map
+	var result map[string]interface{}
+	err = json.Unmarshal([]byte(jsonData), &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (c *Cache) GetObjectField(key string, field string) (interface{}, error) {
@@ -103,34 +116,55 @@ func (c *Cache) CreateTimeSeries(key string, retenstion string, labels map[strin
 
 func (c *Cache) AddTimeSeriesDataPoint(key string, timestamp int64, value float64) error {
 	ctx := context.Background()
+
+	exists := c.redisClient.Exists(ctx, key).Val()
+	if exists == 0 {
+		log.Printf("TimeSeries key %s does not exist, cannot add data point", key)
+		return nil
+	}
+	log.Printf("TS DATA: %f", value)
 	_, err := c.redisClient.Do(ctx, "TS.ADD", key, timestamp, value).Result()
 	return err
 }
 
-func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int) (map[string][]interface{}, error) {
+func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int) (interface{}, error) {
 	ctx := context.Background()
-
-	// // var args []interface{}
-	// args = []interface{}{"TS.MRANGE", fromTimestamp, toTimestamp, "FILTER", filter}
-
-	// if aggregation != "" && bucketDuration > 0 {
-	// 	args = append(args, "AGGREGATION", aggregation, bucketDuration)
-	// }
-
-	result, err := c.redisClient.TSMRangeWithArgs(
-		ctx,
-		int(fromTimestamp),
-		int(toTimestamp),
-		[]string{filter},
-		&redis.TSMRangeOptions{
-			Reducer:        aggregation,
-			BucketDuration: int(bucketDuration),
-		},
+	log.Printf("FILTER: %s | FROM: %d | TO: %d | AGG: %s | BUCKET: %d",
+		filter, fromTimestamp, toTimestamp, aggregation, bucketDuration)
+	filterSlice := strings.Split(filter, " ")
+	log.Printf("FILTER: %s", filter)
+	result, err := c.redisClient.Do(ctx,
+		"TS.MRANGE",
+		fromTimestamp,
+		toTimestamp,
+		"AGGREGATION", aggregation, bucketDuration,
+		"FILTER",
+		filterSlice[0],
+		filterSlice[1],
 	).Result()
-	// result, err := c.redisClient.Do(ctx, args...).Result()
 
 	if err != nil {
+		log.Printf("Error retrieving time series range: %v", err)
 		return nil, err
+	}
+
+	log.Printf("TS RANGE RESULT TYPE: %T", result)
+	log.Printf("TS RANGE RESULT: %+v", result)
+
+	// Display detailed structure
+	if resultMap, ok := result.(map[interface{}]interface{}); ok {
+		log.Printf("Result is a map with %d keys", len(resultMap))
+		for key, value := range resultMap {
+			log.Printf("Key TYPE: %T, Key VALUE: %+v", key, key)
+			log.Printf("Value TYPE: %T, Value VALUE: %+v", value, value)
+
+			if valueSlice, ok := value.([]interface{}); ok {
+				log.Printf("  Value is a slice with %d items", len(valueSlice))
+				for i, item := range valueSlice {
+					log.Printf("    Item[%d] TYPE: %T, VALUE: %+v", i, item, item)
+				}
+			}
+		}
 	}
 
 	return result, nil

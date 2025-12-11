@@ -38,3 +38,26 @@ export async function addDevice(device: NewDevice) {
         throw error;
     }
 }
+
+
+export async function deleteDevice(deviceID: string) {
+    try {
+        const response = await api.delete(`/v1/devices/${deviceID}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to delete device:", error);
+        throw error;
+    }
+}
+
+export async function getDeviceData(deviceID: string, from: string, to: string , range: string) {
+    try {
+        const response = await api.get(`/v1/devices/history`, {
+            params: { device_id: deviceID, start: from, end: to, range: range}
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch device data:", error);
+        throw error;
+    }
+}

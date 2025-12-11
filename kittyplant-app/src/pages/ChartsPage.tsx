@@ -24,8 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { getDeviceData } from '@/lib/devices';
 
 export const description = "View detailed charts of your plant's water and moisture levels over time to help you keep them healthy and thriving.";
 
@@ -164,6 +165,20 @@ function ChartsPage() {
         setSelectedDevice(value);
         // You can add logic here to update the chart data based on the selected device
     }
+
+    useEffect(() => {
+        const now = new Date();
+        const dayBefore = new Date();
+        dayBefore.setDate(dayBefore.getDate() - 7);
+        const dayBeforeStr = dayBefore.toISOString();
+        getDeviceData("kp-0001", dayBeforeStr, now.toISOString(), "day")
+        .then(data => {
+            console.log("Device data:", data);
+        }).catch(err => {
+            console.error("Error fetching device data:", err);
+        });
+    });
+
 
     return (
         <div>
