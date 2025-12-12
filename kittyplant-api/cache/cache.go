@@ -148,6 +148,10 @@ func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestam
 		return nil, err
 	}
 
+	for k := range result.(map[interface{}]interface{}) {
+		log.Printf("Result Key: %v", k)
+	}
+
 	return result, nil
 }
 

@@ -83,6 +83,7 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 
 		devices = append(devices, map[string]interface{}{
 			"name":            device.DeviceName,
+			"displayName":     device.Name,
 			"status":          "online",
 			"plant":           device.Plant.Name,
 			"waterLevel":      waterLevel,
@@ -261,8 +262,167 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 	log.Printf("Water data: %v", dataWater)
 	log.Printf("Moisture data: %v", dataMoisture)
 
+	combinedData := transformTimeSeriesData(dataWater, dataMoisture, rangeType)
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"water_data":    dataWater,
-		"moisture_data": dataMoisture,
+		"data": combinedData,
 	})
+}
+
+func transformTimeSeriesData(waterData, moistureData interface{}, rangeType string) []map[string]interface{} {
+	// Extract data points from the nested structure
+	waterPoints := extractDataPoints(waterData)
+	moisturePoints := extractDataPoints(moistureData)
+
+	// Create map for quick lookup
+	waterMap := make(map[int64]float64)
+	for _, point := range waterPoints {
+		waterMap[point.Timestamp] = point.Value
+	}
+
+	moistureMap := make(map[int64]float64)
+	for _, point := range moisturePoints {
+		moistureMap[point.Timestamp] = point.Value
+	}
+
+	// Get all unique timestamps
+	timestampSet := make(map[int64]bool)
+	for ts := range waterMap {
+		timestampSet[ts] = true
+	}
+	for ts := range moistureMap {
+		timestampSet[ts] = true
+	}
+
+	// Create sorted list of timestamps
+	var timestamps []int64
+	for ts := range timestampSet {
+		timestamps = append(timestamps, ts)
+	}
+
+	// Sort timestamps
+	for i := 0; i < len(timestamps); i++ {
+		for j := i + 1; j < len(timestamps); j++ {
+			if timestamps[i] > timestamps[j] {
+				timestamps[i], timestamps[j] = timestamps[j], timestamps[i]
+			}
+		}
+	}
+
+	// Build combined result
+	var result []map[string]interface{}
+	for _, ts := range timestamps {
+		timeStr := formatTimestamp(ts, rangeType)
+		water := 0
+		moisture := 0
+
+		if val, ok := waterMap[ts]; ok {
+			water = int(val)
+		}
+		if val, ok := moistureMap[ts]; ok {
+			moisture = int(val)
+		}
+
+		result = append(result, map[string]interface{}{
+			"time":     timeStr,
+			"moisture": moisture,
+			"water":    water,
+		})
+	}
+
+	return result
+}
+
+type DataPoint struct {
+	Timestamp int64
+	Value     float64
+}
+
+func extractDataPoints(data interface{}) []DataPoint {
+	var points []DataPoint
+
+	// Debug: log the actual type
+	log.Printf("Data type: %T", data)
+
+	// Convert to JSON and back to normalize the type
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Printf("Failed to marshal data: %v", err)
+		return points
+	}
+
+	log.Printf("JSON data: %s", string(jsonData))
+
+	var dataMap map[string]interface{}
+	if err := json.Unmarshal(jsonData, &dataMap); err != nil {
+		log.Printf("Failed to unmarshal data: %v", err)
+		return points
+	}
+
+	// Get the first (and should be only) value from the map
+	for key, value := range dataMap {
+		log.Printf("Processing series key: %s", key)
+
+		arr, ok := value.([]interface{})
+		if !ok {
+			log.Printf("Failed to cast value to []interface{}")
+			continue
+		}
+
+		if len(arr) < 3 {
+			log.Printf("Array too short, length: %d", len(arr))
+			continue
+		}
+
+		// The actual data is in the third element
+		dataArr, ok := arr[2].([]interface{})
+		if !ok {
+			log.Printf("Failed to cast arr[2] to []interface{}")
+			continue
+		}
+
+		for _, item := range dataArr {
+			pair, ok := item.([]interface{})
+			if !ok || len(pair) != 2 {
+				continue
+			}
+
+			timestamp, ok := pair[0].(float64)
+			if !ok {
+				continue
+			}
+
+			value, ok := pair[1].(float64)
+			if !ok {
+				continue
+			}
+
+			points = append(points, DataPoint{
+				Timestamp: int64(timestamp),
+				Value:     value,
+			})
+		}
+
+		log.Printf("Extracted %d points from series %s", len(points), key)
+		break // Only process first series
+	}
+
+	return points
+}
+
+func formatTimestamp(timestampMs int64, rangeType string) string {
+	t := time.UnixMilli(timestampMs)
+
+	switch rangeType {
+	case "day":
+		return t.Format("15:04") // "00:00"
+	case "week":
+		return t.Format("Mon 02") // "Mon 12"
+	case "month":
+		return t.Format("Jan 2") // "Dec 5"
+	case "year":
+		return t.Format("Jan") // "Jan"
+	default:
+		return t.Format("15:04")
+	}
 }

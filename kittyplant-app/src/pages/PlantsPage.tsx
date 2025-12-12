@@ -31,11 +31,19 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+
+interface DeviceData  {
+  device_id: string;
+  name: string;
+  waterLevel: number;
+  moistureLevel: number;
+  plant: string;
+  lastTimeWatered: string;
+}
+
+
 function PlantsPage() {
-  const [waterLevels, setWaterLevels] = useState<number[]>([75, 45, 60, 20]);
-  const [moistureLevels, setMoistureLevels] = useState<number[]>([65, 40, 55, 15]);
-  const [lastWatered, setLastWatered] = useState<string[]>([]);
-  const [deviceName, setDeviceName] = useState<string[]>([]);
+  const [devices, setDevices] = useState<DeviceData[]>([]); 
   const [newDeviceName, setNewDeviceName] = useState('');
   const [newID, setID] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
@@ -49,16 +57,10 @@ function PlantsPage() {
       const response = await getDevices();
       console.log(response);
       if (!response.devices || response.devices.length === 0) {
-        setWaterLevels([]);
-        setDeviceName([]);
+        setDevices([]);
         return;
       }
-      const levels = response.devices.map((device: any) => device.waterLevel);
-      setWaterLevels(levels);
-      const moisture = response.devices.map((device: any) => device.moistureLevel);
-      setMoistureLevels(moisture); 
-      const name = response.devices.map((device: any) => device.name);
-      setDeviceName(name);
+      setDevices(response.devices);
     } catch (error) {
       console.error("Error fetching water level:", error);
       toast.error("Failed to fetch devices");
@@ -124,13 +126,13 @@ function PlantsPage() {
       <Header />
       <div className="h-full w-full">
           <div className="w-4/5 flex flex-wrap justify-center mx-auto my-5">
-          {deviceName.map((name, index) => (
+          {devices.map((device, index) => (
             <WaterLevel 
               key={index} 
-              waterLevel={waterLevels[index]} 
-              moistureLevel={moistureLevels[index]} 
-              lastTimeWatered={lastWatered[index]} 
-              name={name} 
+              waterLevel={device.waterLevel} 
+              moistureLevel={device.moistureLevel} 
+              lastTimeWatered={device.lastTimeWatered} 
+              name={device.name} 
             />
           ))}
           </div>
