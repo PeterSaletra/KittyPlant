@@ -76,3 +76,14 @@ func (d *Database) AssignPlantToDevice(plantName string, device *Device) (err er
 
 	return d.DB.Save(device).Error
 }
+
+func (d *Database) GetDeviceNamesByUserID(userID uint) (deviceNames []string, err error) {
+	if err = d.DB.Model(&Device{}).
+		Select("devices.device_name").
+		Joins("JOIN relations ON devices.id = relations.device_id").
+		Where("relations.user_id = ?", userID).
+		Pluck("devices.device_name", &deviceNames).Error; err != nil {
+		return nil, err
+	}
+	return deviceNames, nil
+}

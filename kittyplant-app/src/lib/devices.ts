@@ -39,6 +39,15 @@ export async function addDevice(device: NewDevice) {
     }
 }
 
+export async function getDevicesNames() {
+    try {
+        const response = await api.get("/v1/devices/names");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to update device names:", error);
+        throw error;
+    }
+}
 
 export async function deleteDevice(deviceID: string) {
     try {

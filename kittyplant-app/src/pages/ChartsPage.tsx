@@ -24,76 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import { getDeviceData } from '@/lib/devices';
+import { getDeviceData, getDevicesNames } from '@/lib/devices';
 
 export const description = "View detailed charts of your plant's water and moisture levels over time to help you keep them healthy and thriving.";
-
-const chartDataDay = [
-    { time: "00:00", moisture: 45, water: 60 },
-    { time: "01:00", moisture: 44, water: 59 },
-    { time: "02:00", moisture: 43, water: 58 },
-    { time: "03:00", moisture: 42, water: 58 },
-    { time: "04:00", moisture: 42, water: 58 },
-    { time: "05:00", moisture: 43, water: 59 },
-    { time: "06:00", moisture: 45, water: 61 },
-    { time: "07:00", moisture: 47, water: 63 },
-    { time: "08:00", moisture: 48, water: 65 },
-    { time: "09:00", moisture: 49, water: 66 },
-    { time: "10:00", moisture: 50, water: 68 },
-    { time: "11:00", moisture: 51, water: 69 },
-    { time: "12:00", moisture: 52, water: 70 },
-    { time: "13:00", moisture: 52, water: 70 },
-    { time: "14:00", moisture: 51, water: 69 },
-    { time: "15:00", moisture: 50, water: 68 },
-    { time: "16:00", moisture: 50, water: 68 },
-    { time: "17:00", moisture: 49, water: 66 },
-    { time: "18:00", moisture: 48, water: 65 },
-    { time: "19:00", moisture: 47, water: 63 },
-    { time: "20:00", moisture: 46, water: 62 },
-    { time: "21:00", moisture: 46, water: 62 },
-    { time: "22:00", moisture: 45, water: 61 },
-    { time: "23:00", moisture: 45, water: 60 },
-]
-
-const chartDataWeek = [
-  { time: "Mon", moisture: 45, water: 60 },
-  { time: "Tue", moisture: 48, water: 65 },
-  { time: "Wed", moisture: 42, water: 55 },
-  { time: "Thu", moisture: 50, water: 68 },
-  { time: "Fri", moisture: 47, water: 63 },
-  { time: "Sat", moisture: 52, water: 72 },
-  { time: "Sun", moisture: 49, water: 67 },
-]
-
-const chartDataMonth = [
-  { time: "Week 1", moisture: 30, water: 80 },
-  { time: "Week 2", moisture: 40, water: 70 },
-  { time: "Week 3", moisture: 37, water: 65 },
-  { time: "Week 4", moisture: 45, water: 75 },
-]
-
-const chartDataYear = [
-  { time: "Jan", moisture: 30, water: 80 },
-  { time: "Feb", moisture: 40, water: 70 },
-  { time: "Mar", moisture: 37, water: 65 },
-  { time: "Apr", moisture: 73, water: 90 },
-  { time: "May", moisture: 50, water: 75 },
-  { time: "Jun", moisture: 44, water: 68 },
-  { time: "Jul", moisture: 38, water: 62 },
-  { time: "Aug", moisture: 42, water: 70 },
-  { time: "Sep", moisture: 48, water: 78 },
-  { time: "Oct", moisture: 52, water: 82 },
-  { time: "Nov", moisture: 46, water: 74 },
-  { time: "Dec", moisture: 40, water: 68 },
-]
-
-const deviceList = [
-    { id: 1, name: "Custom Device Name 1" },
-    { id: 2, name: "Custom Device Name 2" },
-    { id: 3, name: "Custom Device Name 3" },
-]
 
 const chartConfig = {
   moisture: {
@@ -109,16 +44,17 @@ const chartConfig = {
 
 
 function ChartsPage() {
-    const [selectedDevice, setSelectedDevice] = useState(deviceList[0].name);
+    const [deviceList, setDeviceList] = useState<{id: number, name: string}[]>([]);
+    const [selectedDevice, setSelectedDevice] = useState("");
     const [selectedTime, setSelectedTime] = useState("day");
     const [chartRange, setChartRange] = useState(new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }));
-    const [currentChartData, setCurrentChartData] = useState(chartDataDay);
+    const [currentChartData, setCurrentChartData] = useState([]);
+    const [currentDate, setCurrentDate] = useState(new Date());
 
-    const handleChangeTime = (value: string) => {
-        setSelectedTime(value);
-        switch (value) {
+    const updateChartRange = (date: Date, rangeType: string) => {
+        switch (rangeType) {
             case "day": {
-                const now = new Date().toLocaleDateString(
+                const formatted = date.toLocaleDateString(
                     "en-US", 
                     { 
                         month: "long",
@@ -126,32 +62,26 @@ function ChartsPage() {
                         day: "numeric",
                         year: "numeric"
                     });
-                setChartRange(now);
-                setCurrentChartData(chartDataDay);
+                setChartRange(formatted);
                 break;
             }
-            case "week":{
-                const now = new Date();
-                const first = now.getDate() - now.getDay() + 1;
+            case "week": {
+                const tempDate = new Date(date);
+                const first = tempDate.getDate() - tempDate.getDay() + 1;
                 const last = first + 6;
-                const firstday = new Date(now.setDate(first)).toLocaleDateString("en-US", { month: "long", day: "numeric" });
-                const lastday = new Date(now.setDate(last)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+                const firstday = new Date(tempDate.setDate(first)).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+                const lastday = new Date(tempDate.setDate(last)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
                 setChartRange(`${firstday} - ${lastday}`);
-                setCurrentChartData(chartDataWeek);
                 break;
             }
             case "month": { 
-                const now = new Date();
-                const month = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+                const month = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
                 setChartRange(`${month}`);
-                setCurrentChartData(chartDataMonth);
                 break;
             }
             case "year": {
-                const now = new Date();
-                const year = now.getFullYear();
+                const year = date.getFullYear();
                 setChartRange(`${year}`);
-                setCurrentChartData(chartDataYear);
                 break;
             }
             default:
@@ -160,24 +90,90 @@ function ChartsPage() {
         }
     }
 
+    const handleChangeTime = (value: string) => {
+        setSelectedTime(value);
+        const now = new Date();
+        setCurrentDate(now);
+        updateChartRange(now, value);
+        // Fetch new data with the updated time range
+        if (selectedDevice) {
+            handleGetDeviceData(selectedDevice, value, now);
+        }
+    }
+
+    const handleNavigateTime = (direction: 'prev' | 'next') => {
+        const newDate = new Date(currentDate);
+        
+        switch (selectedTime) {
+            case "day":
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+                break;
+            case "week":
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+                break;
+            case "month":
+                newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+                break;
+            case "year":
+                newDate.setFullYear(newDate.getFullYear() + (direction === 'next' ? 1 : -1));
+                break;
+        }
+        
+        setCurrentDate(newDate);
+        updateChartRange(newDate, selectedTime);
+        
+        if (selectedDevice) {
+            handleGetDeviceData(selectedDevice, selectedTime, newDate);
+        }
+    }
+
     const handleDeviceChange = (value: string) => {
         console.log("Selected device:", value);
         setSelectedDevice(value);
-        // You can add logic here to update the chart data based on the selected device
+        // Fetch data for the newly selected device
+        handleGetDeviceData(value, selectedTime, currentDate);
     }
 
+    const handleGetDeviceData = async (deviceId: string, rangeType: string, endDate: Date = new Date()) => {
+        const now = new Date(endDate);
+        const startDate = new Date(endDate);
+        
+        // Calculate start date based on range type
+        switch (rangeType) {
+            case "day":
+                startDate.setDate(startDate.getDate() - 1);
+                break;
+            case "week":
+                startDate.setDate(startDate.getDate() - 7);
+                break;
+            case "month":
+                startDate.setMonth(startDate.getMonth() - 1);
+                break;
+            case "year":
+                startDate.setFullYear(startDate.getFullYear() - 1);
+                break;
+            default:
+                startDate.setDate(startDate.getDate() - 1);
+        }
+        
+        const data = await getDeviceData(deviceId, startDate.toISOString(), now.toISOString(), rangeType);
+        setCurrentChartData(data.data);
+    }
+
+    const handleGetDevicesNames = useCallback(async () => {
+        const data = await getDevicesNames();
+        setDeviceList(data.devices);
+        if (data.devices.length > 0) {
+            const firstDevice = data.devices[0].name;
+            setSelectedDevice(firstDevice);
+            // Fetch initial data for the first device
+            handleGetDeviceData(firstDevice, "day");
+        }
+    }, []);
+
     useEffect(() => {
-        const now = new Date();
-        const dayBefore = new Date();
-        dayBefore.setDate(dayBefore.getDate() - 7);
-        const dayBeforeStr = dayBefore.toISOString();
-        getDeviceData("kp-0001", dayBeforeStr, now.toISOString(), "day")
-        .then(data => {
-            console.log("Device data:", data);
-        }).catch(err => {
-            console.error("Error fetching device data:", err);
-        });
-    });
+        handleGetDevicesNames();
+    }, [handleGetDevicesNames]);
 
 
     return (
@@ -287,11 +283,17 @@ function ChartsPage() {
                     <CardFooter>
                         <div className="flex w-full  text-sm flex-col">
                             <div className='flex gap-2 items-center justify-center mb-2 text-muted-foreground'>
-                                <button className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'>
+                                <button 
+                                    onClick={() => handleNavigateTime('prev')}
+                                    className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'
+                                >
                                     <ArrowBackIosIcon className='text-sm ml-2.5'  />
                                 </button>
                                 {chartRange}
-                                <button className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'>
+                                <button 
+                                    onClick={() => handleNavigateTime('next')}
+                                    className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'
+                                >
                                     <ArrowBackIosIcon className='rotate-180 mr-2.5'/>
                                 </button>
                             </div>

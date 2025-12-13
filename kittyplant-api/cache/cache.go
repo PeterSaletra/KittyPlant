@@ -127,12 +127,15 @@ func (c *Cache) AddTimeSeriesDataPoint(key string, timestamp int64, value float6
 	return err
 }
 
-func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int) (interface{}, error) {
+type TimeSeriesDataPoint struct {
+	Timestamp int64   `json:"time"`
+	Value     float64 `json:"value"`
+}
+
+func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestamp int64, aggregation string, bucketDuration int) ([]TimeSeriesDataPoint, error) {
 	ctx := context.Background()
-	log.Printf("FILTER: %s | FROM: %d | TO: %d | AGG: %s | BUCKET: %d",
-		filter, fromTimestamp, toTimestamp, aggregation, bucketDuration)
 	filterSlice := strings.Split(filter, " ")
-	log.Printf("FILTER: %s", filter)
+
 	result, err := c.redisClient.Do(ctx,
 		"TS.MRANGE",
 		fromTimestamp,
@@ -148,11 +151,48 @@ func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestam
 		return nil, err
 	}
 
+	var dataPoints []TimeSeriesDataPoint
+
 	for k := range result.(map[interface{}]interface{}) {
-		log.Printf("Result Key: %v", k)
+		dataArr, ok := result.(map[interface{}]interface{})[k].([]interface{})[2].([]interface{})
+		if !ok {
+			log.Printf("Failed to cast arr[2] to []interface{}")
+			continue
+		}
+
+		for i, item := range dataArr {
+			pair, ok := item.([]interface{})
+			if !ok {
+				log.Printf("Item %d is not an array", i)
+				continue
+			}
+
+			if len(pair) != 2 {
+				log.Printf("Item %d has wrong length: %d", i, len(pair))
+				continue
+			}
+
+			// First element is timestamp (milliseconds)
+			timestamp, ok := pair[0].(int64)
+			if !ok {
+				log.Printf("Item %d: timestamp is not float64, type: %T", i, pair[0])
+				continue
+			}
+
+			// Second element is the value
+			value, ok := pair[1].(float64)
+			if !ok {
+				log.Printf("Item %d: value is not float64, type: %T", i, pair[1])
+				continue
+			}
+			dataPoints = append(dataPoints, TimeSeriesDataPoint{
+				Timestamp: int64(timestamp),
+				Value:     value,
+			})
+		}
 	}
 
-	return result, nil
+	return dataPoints, nil
 }
 
 func (c *Cache) TimeSeriesExists(key string) bool {

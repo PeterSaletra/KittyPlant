@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"kittyplant-api/cache"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -186,6 +188,38 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Device added successfully"})
 }
 
+func (c *Controllers) GetDeviceNames(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get(userIDSessionKey)
+	if userID == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	var devices []store.Device
+	err := c.DB.GetDevicesAssignedToUser(&devices, userID.(uint))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch device names"})
+		return
+	}
+
+	var deviceNames []map[string]interface{}
+	for _, device := range devices {
+		deviceNames = append(deviceNames, map[string]interface{}{
+			"id":   device.ID,
+			"name": device.DeviceName,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"devices": deviceNames})
+}
+
+type ChartDataPoint struct {
+	Time     string `json:"time"`
+	Moisture int    `json:"moisture"`
+	Water    int    `json:"water"`
+}
+
 func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 
@@ -224,9 +258,6 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("Querying from %d to %d", start.UnixMilli(), end.UnixMilli())
-	log.Printf("Querying from %d to %d", int(start.UnixMilli()), int(end.UnixMilli()))
-
 	var aggregation string = "avg"
 	var bucketDuration int
 
@@ -259,29 +290,23 @@ func (c *Controllers) GetDeviceData(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("Water data: %v", dataWater)
-	log.Printf("Moisture data: %v", dataMoisture)
-
-	combinedData := transformTimeSeriesData(dataWater, dataMoisture, rangeType)
+	// Transform data into combined format
+	combinedData := combineChartData(dataWater, dataMoisture, rangeType)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": combinedData,
 	})
 }
 
-func transformTimeSeriesData(waterData, moistureData interface{}, rangeType string) []map[string]interface{} {
-	// Extract data points from the nested structure
-	waterPoints := extractDataPoints(waterData)
-	moisturePoints := extractDataPoints(moistureData)
-
-	// Create map for quick lookup
+func combineChartData(waterData, moistureData []cache.TimeSeriesDataPoint, rangeType string) []ChartDataPoint {
+	// Create maps for quick lookup by timestamp
 	waterMap := make(map[int64]float64)
-	for _, point := range waterPoints {
+	for _, point := range waterData {
 		waterMap[point.Timestamp] = point.Value
 	}
 
 	moistureMap := make(map[int64]float64)
-	for _, point := range moisturePoints {
+	for _, point := range moistureData {
 		moistureMap[point.Timestamp] = point.Value
 	}
 
@@ -294,7 +319,7 @@ func transformTimeSeriesData(waterData, moistureData interface{}, rangeType stri
 		timestampSet[ts] = true
 	}
 
-	// Create sorted list of timestamps
+	// Convert to sorted slice
 	var timestamps []int64
 	for ts := range timestampSet {
 		timestamps = append(timestamps, ts)
@@ -310,7 +335,7 @@ func transformTimeSeriesData(waterData, moistureData interface{}, rangeType stri
 	}
 
 	// Build combined result
-	var result []map[string]interface{}
+	var result []ChartDataPoint
 	for _, ts := range timestamps {
 		timeStr := formatTimestamp(ts, rangeType)
 		water := 0
@@ -323,91 +348,14 @@ func transformTimeSeriesData(waterData, moistureData interface{}, rangeType stri
 			moisture = int(val)
 		}
 
-		result = append(result, map[string]interface{}{
-			"time":     timeStr,
-			"moisture": moisture,
-			"water":    water,
+		result = append(result, ChartDataPoint{
+			Time:     timeStr,
+			Moisture: moisture,
+			Water:    water,
 		})
 	}
 
 	return result
-}
-
-type DataPoint struct {
-	Timestamp int64
-	Value     float64
-}
-
-func extractDataPoints(data interface{}) []DataPoint {
-	var points []DataPoint
-
-	// Debug: log the actual type
-	log.Printf("Data type: %T", data)
-
-	// Convert to JSON and back to normalize the type
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		log.Printf("Failed to marshal data: %v", err)
-		return points
-	}
-
-	log.Printf("JSON data: %s", string(jsonData))
-
-	var dataMap map[string]interface{}
-	if err := json.Unmarshal(jsonData, &dataMap); err != nil {
-		log.Printf("Failed to unmarshal data: %v", err)
-		return points
-	}
-
-	// Get the first (and should be only) value from the map
-	for key, value := range dataMap {
-		log.Printf("Processing series key: %s", key)
-
-		arr, ok := value.([]interface{})
-		if !ok {
-			log.Printf("Failed to cast value to []interface{}")
-			continue
-		}
-
-		if len(arr) < 3 {
-			log.Printf("Array too short, length: %d", len(arr))
-			continue
-		}
-
-		// The actual data is in the third element
-		dataArr, ok := arr[2].([]interface{})
-		if !ok {
-			log.Printf("Failed to cast arr[2] to []interface{}")
-			continue
-		}
-
-		for _, item := range dataArr {
-			pair, ok := item.([]interface{})
-			if !ok || len(pair) != 2 {
-				continue
-			}
-
-			timestamp, ok := pair[0].(float64)
-			if !ok {
-				continue
-			}
-
-			value, ok := pair[1].(float64)
-			if !ok {
-				continue
-			}
-
-			points = append(points, DataPoint{
-				Timestamp: int64(timestamp),
-				Value:     value,
-			})
-		}
-
-		log.Printf("Extracted %d points from series %s", len(points), key)
-		break // Only process first series
-	}
-
-	return points
 }
 
 func formatTimestamp(timestampMs int64, rangeType string) string {
@@ -417,9 +365,9 @@ func formatTimestamp(timestampMs int64, rangeType string) string {
 	case "day":
 		return t.Format("15:04") // "00:00"
 	case "week":
-		return t.Format("Mon 02") // "Mon 12"
+		return t.Format("Mon") // "Mon"
 	case "month":
-		return t.Format("Jan 2") // "Dec 5"
+		return t.Format("Jan 2") // "Jan 2"
 	case "year":
 		return t.Format("Jan") // "Jan"
 	default:

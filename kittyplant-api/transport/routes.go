@@ -30,6 +30,7 @@ func (h *HttpServer) prepareRoutes() {
 		{
 			devices.GET("", h.c.GetDevices)
 			devices.POST("", h.c.AddNewDevice)
+			devices.GET("/names", h.c.GetDeviceNames)
 			devices.GET("/history", h.c.GetDeviceData)
 
 		}
