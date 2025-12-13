@@ -5,7 +5,7 @@ import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
-import { getDevices, addDevice, type NewDevice } from '@/lib/devices';
+import { getDevices, addDevice, type NewDevice, deleteDevice } from '@/lib/devices';
 import { getPlants } from '@/lib/plants';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -77,6 +77,16 @@ function PlantsPage() {
     }
   };
 
+    const handleDelete = async (device_id: string) => {
+      try{
+          await deleteDevice(device_id);
+          handleUpdateWaterLevel();
+          toast.success('Device deleted successfully');
+      }catch (error) {
+          toast.error(`Error deleting device: ${error}`);
+      }
+  }
+
   useEffect(() => {
     handleUpdateWaterLevel();
     handleGetPlants();
@@ -133,6 +143,9 @@ function PlantsPage() {
               moistureLevel={device.moistureLevel} 
               lastTimeWatered={device.lastTimeWatered} 
               name={device.name} 
+              plant={device.plant}
+              device_id={device.device_id}
+              onDelete={() => handleDelete(device.device_id)}
             />
           ))}
           </div>

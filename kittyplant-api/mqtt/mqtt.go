@@ -133,6 +133,20 @@ func (m *MqttClient) Subscribe(topic string) {
 	}
 }
 
+func (m *MqttClient) Unsubscribe(topic string) error {
+	log.Printf("Unsubscribing from topic %s", topic)
+	token := m.client.Unsubscribe(topic)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Failed to unsubscribe from topic %s: %v", topic, token.Error())
+		return token.Error()
+	} else {
+		m.mu.Delete(topic)
+		log.Printf("Successfully unsubscribed from topic %s", topic)
+	}
+	return nil
+}
+
 func (m *MqttClient) Disconnect() {
 	m.client.Disconnect(250)
 }

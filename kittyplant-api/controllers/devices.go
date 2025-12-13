@@ -84,8 +84,8 @@ func (c *Controllers) GetDevices(ctx *gin.Context) {
 		}
 
 		devices = append(devices, map[string]interface{}{
-			"name":            device.DeviceName,
-			"displayName":     device.Name,
+			"device_id":       device.DeviceName,
+			"name":            device.Name,
 			"status":          "online",
 			"plant":           device.Plant.Name,
 			"waterLevel":      waterLevel,
@@ -212,6 +212,55 @@ func (c *Controllers) GetDeviceNames(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"devices": deviceNames})
+}
+
+func (c *Controllers) DeleteDevice(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get(userIDSessionKey)
+	if userID == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	deviceID := ctx.Param("device_id")
+	belongs, err := c.DB.CheckDeviceBelongsToUser(userID.(uint), deviceID)
+	if err != nil {
+		log.Printf("Failed to verify device ownership: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify device"})
+		return
+	}
+	if !belongs {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This device does not belong to you"})
+		return
+	}
+	err = c.DB.DeleteDeviceByName(deviceID)
+	if err != nil {
+		log.Printf("Failed to delete device: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete device"})
+		return
+	}
+
+	err = c.mqtt.Unsubscribe(deviceID + "/data")
+	if err != nil {
+		log.Printf("Failed to unsubscribe from MQTT topic: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to unsubscribe from MQTT topic"})
+		return
+	}
+
+	err = c.cache.DeleteTimeSeries(deviceID + ":water")
+	if err != nil {
+		log.Printf("Failed to delete water timeseries: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete water timeseries"})
+		return
+	}
+
+	err = c.cache.DeleteTimeSeries(deviceID + ":moisture")
+	if err != nil {
+		log.Printf("Failed to delete moisture timeseries: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete moisture timeseries"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Device deleted successfully"})
 }
 
 type ChartDataPoint struct {

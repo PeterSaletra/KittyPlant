@@ -26,7 +26,7 @@ func (d *Database) GetDevices(devices *[]Device) (err error) {
 }
 
 func (d *Database) GetDevicesAssignedToUser(devices *[]Device, userID uint) (err error) {
-	if err = d.DB.Joins("JOIN relations ON devices.id = relations.device_id").Where("relations.user_id = ?", userID).Find(devices).Error; err != nil {
+	if err = d.DB.Distinct().Preload("Plant").Joins("JOIN relations ON devices.id = relations.device_id").Where("relations.user_id = ?", userID).Find(devices).Error; err != nil {
 		return err
 	}
 
@@ -86,4 +86,29 @@ func (d *Database) GetDeviceNamesByUserID(userID uint) (deviceNames []string, er
 		return nil, err
 	}
 	return deviceNames, nil
+}
+
+func (d *Database) DeleteDeviceByName(deviceID string) (err error) {
+	// First, get the device to find its ID
+	var device Device
+	if err = d.DB.Where("device_name = ?", deviceID).First(&device).Error; err != nil {
+		return err
+	}
+
+	// Delete all relations associated with this device
+	if err = d.DB.Where("device_id = ?", device.ID).Delete(&Relation{}).Error; err != nil {
+		return err
+	}
+
+	// Delete all data associated with this device
+	if err = d.DB.Where("device_id = ?", device.ID).Delete(&Data{}).Error; err != nil {
+		return err
+	}
+
+	// Finally, delete the device itself
+	if err = d.DB.Where("device_name = ?", deviceID).Delete(&Device{}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

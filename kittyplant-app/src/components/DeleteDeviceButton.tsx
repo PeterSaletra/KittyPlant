@@ -10,21 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from './ui/button';
-import { deleteDevice } from '@/lib/devices';
-import { toast } from 'sonner';
 
-const DeleteDeviceButton: React.FC<{ device_id: string }> = ({ device_id }) => {
-
-    const handleDelete = () => {
-        try{
-            deleteDevice(device_id);
-            toast.success('Device deleted successfully');
-        }catch (error) {
-            toast.error(`Error deleting device: ${error}`);
-        }
-    }
-
-
+const DeleteDeviceButton: React.FC<{ onDelete: () => void }> = ({ onDelete }) => {
     return (
         <Dialog>
             <DialogTrigger>
@@ -41,7 +28,7 @@ const DeleteDeviceButton: React.FC<{ device_id: string }> = ({ device_id }) => {
                     <DialogClose asChild>
                         <Button variant="outline" className="mr-2">Cancel</Button>
                     </DialogClose>
-                    <Button className="bg-(--kitty-dark-pink) text-white px-4 py-2 rounded hover:bg-(--kitty-crayola)" onClick={handleDelete}>
+                    <Button className="bg-(--kitty-dark-pink) text-white px-4 py-2 rounded hover:bg-(--kitty-crayola)" onClick={onDelete}>
                         Delete
                     </Button>
                 </DialogFooter>

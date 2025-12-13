@@ -18,9 +18,12 @@ interface WaterLevelProps {
     moistureLevel: number;
     lastTimeWatered: string;
     name: string;
+    plant: string;
+    device_id: string;
+    onDelete: () => void;
 }
 
-const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, lastTimeWatered, name }) => {
+const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, lastTimeWatered, name, plant, device_id, onDelete }) => {
     const formatLastWatered = (isoString: string) => {
         if (!isoString) return 'Never';
         
@@ -49,14 +52,16 @@ const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, last
                 <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-medium flex items-center justify-between">
                         <div>
-                            {name}
+                             {name}
                         </div>
                         <div>
-                            <CommandButton device_id={name}/>
-                            <DeleteDeviceButton device_id={name}/>    
+                            <CommandButton device_id={device_id}/>
+                            <DeleteDeviceButton onDelete={onDelete}/>    
                         </div>                             
                         </CardTitle>
                     <CardDescription className="text-sm text-gray-600">
+                        <p>Device ID: {device_id}</p>
+                        <p>Plant: {plant}</p>
                         Last time watered: {formatLastWatered(lastTimeWatered)}
                     </CardDescription>
                 </CardHeader>

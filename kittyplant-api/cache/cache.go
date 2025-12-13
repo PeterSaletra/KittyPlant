@@ -195,6 +195,12 @@ func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestam
 	return dataPoints, nil
 }
 
+func (c *Cache) DeleteTimeSeries(key string) error {
+	ctx := context.Background()
+	_, err := c.redisClient.Do(ctx, "DEL", key).Result()
+	return err
+}
+
 func (c *Cache) TimeSeriesExists(key string) bool {
 	ctx := context.Background()
 	result := c.redisClient.Exists(ctx, key).Val()
