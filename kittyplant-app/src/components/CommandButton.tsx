@@ -1,5 +1,6 @@
 import SettingsRemoteIcon from '@mui/icons-material/SettingsRemote';
 import { Droplets, Power, MapPin } from 'lucide-react';
+import { sendCommands } from '@/lib/devices';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +18,10 @@ const CommandButton: React.FC<{ device_id: string}> = ({ device_id}) => {
         { command: "find", label: "Find Device", Icon: MapPin },
     ]
 
-    const handleCommand = (command: string) => {
-        console.log(`Sending command ${command} to device ${device_id}`);
+    const handleCommand = async (command: string) => {   
+         await sendCommands(command, device_id);
     }
-
+    
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>

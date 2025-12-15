@@ -18,7 +18,8 @@
 
 // MQTT client
 const char* hostname = "kp-0001";
-const char* topic = "kp-0001/data";
+const char* topic =  hostname + "/data";
+const char* commandTopic = hostname + "/commands";
 
 // WiFi credentials
 const char* ssidAP = "Test";

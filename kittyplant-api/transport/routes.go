@@ -33,6 +33,7 @@ func (h *HttpServer) prepareRoutes() {
 			devices.GET("/names", h.c.GetDeviceNames)
 			devices.GET("/history", h.c.GetDeviceData)
 			devices.DELETE("/:device_id", h.c.DeleteDevice)
+			devices.POST("/commands", h.c.SendDeviceCommand)
 		}
 		plants := api.Group("/plants")
 		{

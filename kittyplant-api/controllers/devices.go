@@ -423,3 +423,52 @@ func formatTimestamp(timestampMs int64, rangeType string) string {
 		return t.Format("15:04")
 	}
 }
+
+type DeviceCommandRequest struct {
+	DeviceID string `json:"device_id" binding:"required"`
+	Command  string `json:"command" binding:"required"`
+}
+
+func (c *Controllers) SendDeviceCommand(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userID := session.Get(userIDSessionKey)
+	if userID == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var cmdReq DeviceCommandRequest
+	if err := ctx.ShouldBindJSON(&cmdReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	belongs, err := c.DB.CheckDeviceBelongsToUser(userID.(uint), cmdReq.DeviceID)
+	if err != nil {
+		log.Printf("Failed to verify device ownership: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify device"})
+		return
+	}
+
+	if !belongs {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "This device does not belong to you"})
+		return
+	}
+
+	var payload interface{} = map[string]interface{}{
+		"command": cmdReq.Command,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Failed to marshal payload: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to send command to device"})
+		return
+	}
+
+	err = c.mqtt.Publish(cmdReq.DeviceID+"/commands", string(payloadBytes))
+	if err != nil {
+		log.Printf("Failed to publish command to MQTT: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to send command to device"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Command sent successfully"})
+}

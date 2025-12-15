@@ -70,3 +70,16 @@ export async function getDeviceData(deviceID: string, from: string, to: string ,
         throw error;
     }
 }
+
+export async function sendCommands(command: string, deviceID: string) {
+    try {
+        const response = await api.post(`/v1/devices/commands`, {
+            command: command,
+            device_id: deviceID
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to send command to device:", error);
+        throw error;
+    }
+}
