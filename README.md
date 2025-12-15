@@ -31,10 +31,10 @@ This project combines hardware and software components to create a seamless expe
 - Multiple device compatibility
 
 #### Future Plans:
-- [ ] Profile page
-- [ ] Charts for analyze
-- [ ] Checking the insolation
-- [ ] Automatic watering system
+- [x] Profile page
+- [x] Charts for analyze
+- [x] Checking the insolation
+- [x] Automatic watering system
 - [ ] 3D Components to assemble
 
 
@@ -53,7 +53,8 @@ This project combines hardware and software components to create a seamless expe
 
 - Frontend
     - [React](https://react.dev/) + [Vite](https://vite.dev/)
-    - CSS3
+    - [Tailwindcss](https://tailwindcss.com/)
+    - [Shadnc](https://ui.shadcn.com/)
 
 - ESP32
     - Arduino Framework
