@@ -36,6 +36,33 @@ void callback(String &topic, String &payload) {
     Serial.println(error.f_str());
     return;
   }
+  if (topic == commandTopic) {
+    const char* command = doc["command"];
+    
+    switch (command)
+    {
+    case "find":
+      Serial.println("Executing 'find' command: Blinking LED");
+      for (int i = 0; i < 10; i++) {
+        blinkColor(255, 255, 255, 200); 
+      }
+      break;
+    case "restart":
+      Serial.println("Executing 'restart' command: Restarting device");
+      ESP.restart();
+      break;
+    case "water":
+      Serial.println("Executing 'water' command: Activating relay for watering");
+      digitalWrite(PIN_RELAY, LOW); 
+      delay(5000); 
+      digitalWrite(PIN_RELAY, HIGH); 
+      Serial.println("Watering completed.");
+      break;
+    default:
+      break;
+    }
+  }
+
   Serial.print("Water Level: ");
   Serial.println(doc["water_level"].as<int>());
   Serial.println("Message received!");
@@ -76,6 +103,7 @@ void setup() {
   client.connect(hostname, mqtt_user, mqtt_password);
   client.onMessage(callback);
   client.subscribe(topic);
+  client.subscribe(commandTopic);
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 

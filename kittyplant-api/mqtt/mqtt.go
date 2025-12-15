@@ -2,6 +2,7 @@ package mqtt
 
 import (
 	"encoding/json"
+	"fmt"
 	"kittyplant-api/cache"
 	"kittyplant-api/config"
 	"log"
@@ -19,8 +20,8 @@ type MqttClient struct {
 
 type SensorData struct {
 	DeviceID       string    `json:"device_id"`
-	Moisture       float64   `json:"moisture"`
-	WaterLevel     int64     `json:"water_level"`
+	MoistureLevel  int8      `json:"moisture_level"`
+	WaterLevel     int8      `json:"water_level"`
 	RelayState     bool      `json:"relay_actived"`
 	LastWatered    time.Time `json:"last_watered,omitempty"`
 	LastWateredStr string    `json:"last_watered_str,omitempty"`
@@ -33,6 +34,7 @@ func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
 		SetClientID("kittyplant_mqtt_client").
 		SetUsername(config.AppConfig.BrokerUser).
 		SetPassword(config.AppConfig.BrokerPassword)
+
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))
 	})
@@ -101,15 +103,59 @@ func (m *MqttClient) Subscribe(topic string) {
 			}
 		}
 
+		// Save to cache for latest value (as JSON string)
 		err = m.cache.SetObject(msg.Topic(), sensorData, 0)
 		if err != nil {
 			log.Printf("Failed to save message to cache: %v", err)
+		}
+
+		// Save to TimeSeries for historical data
+		deviceID := sensorData.DeviceID
+		timestamp := currentTime.UnixMilli()
+
+		// Add data points to TimeSeries
+		moistureKey := fmt.Sprintf("%s:moisture", deviceID)
+		waterKey := fmt.Sprintf("%s:water", deviceID)
+
+		err = m.cache.AddTimeSeriesDataPoint(moistureKey, timestamp, float64(sensorData.MoistureLevel))
+		if err != nil {
+			log.Printf("Failed to add moisture data point: %v", err)
+		}
+
+		err = m.cache.AddTimeSeriesDataPoint(waterKey, timestamp, float64(sensorData.WaterLevel))
+		if err != nil {
+			log.Printf("Failed to add water data point: %v", err)
 		}
 	})
 	token.Wait()
 	if token.Error() != nil {
 		log.Printf("Failed to subscribe to topic %s: %v", topic, token.Error())
 	}
+}
+
+func (m *MqttClient) Unsubscribe(topic string) error {
+	log.Printf("Unsubscribing from topic %s", topic)
+	token := m.client.Unsubscribe(topic)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Failed to unsubscribe from topic %s: %v", topic, token.Error())
+		return token.Error()
+	} else {
+		m.mu.Delete(topic)
+		log.Printf("Successfully unsubscribed from topic %s", topic)
+	}
+	return nil
+}
+
+func (m *MqttClient) Publish(topic string, payload string) error {
+	log.Printf("Publishing message to topic %s: %s", topic, payload)
+	token := m.client.Publish(topic, 0, false, payload)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Failed to publish message to topic %s: %v", topic, token.Error())
+		return token.Error()
+	}
+	return nil
 }
 
 func (m *MqttClient) Disconnect() {
