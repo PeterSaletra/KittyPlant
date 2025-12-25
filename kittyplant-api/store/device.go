@@ -13,7 +13,6 @@ type Device struct {
 	PlantID    uint   `gorm:"column:plant_id" json:"plant_id"`
 	Plant      Plant  `gorm:"foreignKey:PlantID;references:ID"`
 
-	Data      []Data     `gorm:"foreignKey:DeviceID;references:ID"`
 	Relations []Relation `gorm:"foreignKey:DeviceID;references:ID"`
 }
 

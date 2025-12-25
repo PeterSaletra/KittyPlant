@@ -4,8 +4,6 @@
 #include <Preferences.h>
 #include "nvs_flash.h"
 
-Preferences preferences;
-
 void init_nvs();
 void init_preferences(const char* namespace_name);
 void close_preferences();

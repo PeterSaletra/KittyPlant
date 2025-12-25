@@ -2,9 +2,6 @@
 #include <Arduino.h>
 #include "config.h"
 
-unsigned char low_data[8] = {0};
-unsigned char high_data[12] = {0};
-
 void getHigh12SectionValue(unsigned char* high_data);
 void getLow8SectionValue(unsigned char* low_data);
 

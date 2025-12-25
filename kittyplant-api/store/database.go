@@ -79,11 +79,6 @@ func (d *Database) Migrate() error {
 		log.Fatalf("Cannot migrate table Devices: %s", err)
 	}
 	fmt.Print("Devices table migrated\n")
-	err = d.DB.AutoMigrate(&Data{})
-	if err != nil {
-		log.Fatalf("Cannot migrate table Data: %s", err)
-	}
-	fmt.Print("Data table migrated\n")
 	err = d.DB.AutoMigrate(&Relation{})
 	if err != nil {
 		log.Fatalf("Cannot migrate table Relations: %s", err)

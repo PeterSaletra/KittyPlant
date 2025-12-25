@@ -17,15 +17,14 @@
 #define uS_TO_S_FACTOR 1000000ULL
 
 // MQTT client
-const char* hostname = "kp-0001";
-const char* topic = "kp-0001/data";
+static const char* hostname = "kp-0001";
+static const char* mqtt_topic = "kp-0001/data";
 
 // WiFi credentials
-const char* ssidAP = "Test";
-const char* passwordAP = "testtest";
+static const char* ssidAP = "Test";
+static const char* passwordAP = "testtest";
 
 //MQTT server
-const char* mqtt_server = "192.168.1.103";
-const int port = 1883;
-
+static const char* mqtt_server = "192.168.1.103";
+static const int port = 1883;
 #endif

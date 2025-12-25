@@ -70,7 +70,7 @@ void setup() {
   client.begin(mqtt_server, port, espClient);
   client.connect(hostname);
   client.onMessage(callback);
-  client.subscribe(topic);
+  client.subscribe(mqtt_topic);
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
@@ -134,7 +134,7 @@ void loop() {
     doc["relay_activated"] = (relayActive && !relayWasActive) ? 1 : 0;
 
     size_t n = serializeJson(doc, buffer);
-    client.publish(topic, buffer, n);
+    client.publish(mqtt_topic, buffer, n);
 
     if (!relayWasActive) {
       esp_sleep_enable_timer_wakeup(sleepDuration * uS_TO_S_FACTOR);

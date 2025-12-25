@@ -16,7 +16,7 @@ void handleConnect(){
     set_value_string("ssid", ssid);
     set_value_string("password", password);
 
-    server.send(200, "text/html", connecting_page);
+    server.send(200, "text/html", String(connecting_page) + hostname + String(connecting_page_2));
     delay(1000);
     gotCredentials = true;
 }

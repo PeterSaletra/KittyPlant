@@ -38,11 +38,29 @@ func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
 		InsecureSkipVerify: false,
 	}
 
-	if caCert, err := os.ReadFile("conf/mosquitto/certs/ca.crt"); err == nil {
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-		tlsConfig.RootCAs = caCertPool
+	// Load CA certificate
+	caCert, err := os.ReadFile("conf/mosquitto/certs/ca.crt")
+	if err != nil {
+		log.Printf("Failed to read CA certificate: %v", err)
+		return nil, err
 	}
+	caCertPool := x509.NewCertPool()
+	if !caCertPool.AppendCertsFromPEM(caCert) {
+		log.Printf("Failed to append CA certificate")
+		return nil, err
+	}
+	tlsConfig.RootCAs = caCertPool
+
+	// Load client certificate and key
+	clientCert, err := tls.LoadX509KeyPair(
+		"conf/mosquitto/certs/client.crt",
+		"conf/mosquitto/certs/client.key",
+	)
+	if err != nil {
+		log.Printf("Failed to load client certificate: %v", err)
+		return nil, err
+	}
+	tlsConfig.Certificates = []tls.Certificate{clientCert}
 
 	opts.SetTLSConfig(tlsConfig)
 
