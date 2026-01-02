@@ -13,7 +13,6 @@ type Device struct {
 	PlantID    uint   `gorm:"column:plant_id" json:"plant_id"`
 	Plant      Plant  `gorm:"foreignKey:PlantID;references:ID"`
 
-	Data      []Data     `gorm:"foreignKey:DeviceID;references:ID"`
 	Relations []Relation `gorm:"foreignKey:DeviceID;references:ID"`
 }
 
@@ -97,11 +96,6 @@ func (d *Database) DeleteDeviceByName(deviceID string) (err error) {
 
 	// Delete all relations associated with this device
 	if err = d.DB.Where("device_id = ?", device.ID).Delete(&Relation{}).Error; err != nil {
-		return err
-	}
-
-	// Delete all data associated with this device
-	if err = d.DB.Where("device_id = ?", device.ID).Delete(&Data{}).Error; err != nil {
 		return err
 	}
 
