@@ -26,7 +26,6 @@ func NewCache(addr string, password string) *Cache {
 }
 
 func (c *Cache) SetObject(key string, value interface{}, expiration time.Duration) error {
-	// pipe := c.redisClient.Pipeline()
 	// Serialize the value to JSON
 	jsonData, err := json.Marshal(value)
 	if err != nil {
@@ -34,10 +33,6 @@ func (c *Cache) SetObject(key string, value interface{}, expiration time.Duratio
 	}
 
 	err = c.redisClient.Set(context.Background(), key, jsonData, expiration).Err()
-	// if expiration > 0 {
-	// pipe.Expire(context.Background(), key, expiration)
-	// }
-	// _, err = pipe.Exec(context.Background())
 	return err
 }
 
@@ -172,14 +167,12 @@ func (c *Cache) GetMultiTimeSeriesRange(filter string, fromTimestamp, toTimestam
 				continue
 			}
 
-			// First element is timestamp (milliseconds)
 			timestamp, ok := pair[0].(int64)
 			if !ok {
 				log.Printf("Item %d: timestamp is not float64, type: %T", i, pair[0])
 				continue
 			}
 
-			// Second element is the value
 			value, ok := pair[1].(float64)
 			if !ok {
 				log.Printf("Item %d: value is not float64, type: %T", i, pair[1])

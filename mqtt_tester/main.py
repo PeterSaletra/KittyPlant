@@ -54,7 +54,7 @@ def on_log(client, userdata, level, buf):
 broker_hostname = "localhost"  # Use the MQTT broker's hostname or IP
 port = 1883  # Standard MQTT port for TCP connections
 
-client = mqtt.Client(client_id="Kitty")  # Create a new MQTT client instance
+client = mqtt.Client(client_id="Kitty_2")  # Create a new MQTT client instance
 client.username_pw_set(username="kitty_mqtt", password="password")  # Set username and password if required
 client.on_connect = on_connect
 client.on_message = on_message
@@ -82,7 +82,7 @@ try:
         
         # Create sensor data payload
         sensor_data = {
-            "device_id": "kp-0001",
+            "device_id": "kp-0002",
             "moisture_level": moisture_level,
             "water_level": water_level,
             "relay_actived": relay_state
