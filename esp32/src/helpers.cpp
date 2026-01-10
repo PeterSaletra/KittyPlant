@@ -52,3 +52,27 @@ void signalNoWifiConnection(const String& ssid, const String& password) {
         Serial.println("\nFailed to reconnect to Wi-Fi.");
     }
 }
+
+// Funkcja kalibracji wilgotności z walidacją
+int calibrateMoisture(int raw_value) {
+  // Sprawdź czy wartość jest w dopuszczalnym zakresie
+  if (raw_value < ADC_MIN_VALID) {
+    Serial.println("WARNING: Sensor value too low - możliwe zwarcie!");
+    return -1;
+  }
+  if (raw_value > ADC_MAX_VALID) {
+    Serial.println("WARNING: Sensor value too high - możliwe odpięcie!");
+    return -1;
+  }
+  
+  // Mapowanie z kompensacją
+  int moisture = map(raw_value, ADC_DRY, ADC_WET, 0, 100);
+  moisture = constrain(moisture, 0, 100);
+  
+  return moisture;
+}
+
+// Funkcja sprawdzająca poprawność odczytu poziomu wody
+bool isWaterLevelValid(int8_t level) {
+  return (level >= 0 && level <= 100);
+}

@@ -95,16 +95,16 @@ function PlantsPage() {
 
   useEffect(() => {
     // Uncomment these lines when backend is ready
-    // handleUpdateWaterLevel();
-    // handleGetPlants();
+    handleUpdateWaterLevel();
+    handleGetPlants();
   }, []);
 
   useEffect(() => {
     // Uncomment for real-time updates when backend is ready
-    // const interval = setInterval(() => {
-    //   handleUpdateWaterLevel();
-    // }, 5000);
-    // return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      handleUpdateWaterLevel();
+    }, 5000);
+    return () => clearInterval(interval);
     }
   , []);
 

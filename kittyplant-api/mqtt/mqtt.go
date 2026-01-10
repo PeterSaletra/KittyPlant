@@ -143,6 +143,17 @@ func (m *MqttClient) Subscribe(topic string) {
 	}
 }
 
+func (m *MqttClient) Publish(topic string, payload string) error {
+	log.Printf("Publishing message to topic %s: %s", topic, payload)
+	token := m.client.Publish(topic, 2, false, payload)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Failed to publish message to topic %s: %v", topic, token.Error())
+		return token.Error()
+	}
+	return nil
+}
+
 func (m *MqttClient) Disconnect() {
 	m.client.Disconnect(250)
 }

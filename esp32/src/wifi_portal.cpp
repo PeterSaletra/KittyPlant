@@ -22,11 +22,10 @@ void handleConnect(){
 }
 
 void run_wifi_portal(){
-    Serial.println("Access Point started");
-    Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP());
     dnsServer.start(53, "*", WiFi.softAPIP());
 
+    // Android captive portal trigger
     server.on("/", hanndlePage);
     server.on("/connect", HTTP_POST, handleConnect);
     server.on("/generate_204", []() {
@@ -47,6 +46,7 @@ void run_wifi_portal(){
         server.send(200, "text/plain", "This is not Microsoft");
     });
     
+    // Generic redirect
     server.on("/redirect", []() {
         server.sendHeader("Location", "/");
         server.send(302, "text/plain", "");
@@ -57,7 +57,6 @@ void run_wifi_portal(){
         dnsServer.processNextRequest();
         server.handleClient();
         blinkColor(255, 255, 255);
-        Serial.println("Waiting for credentials...");
     }
     server.stop();
 }

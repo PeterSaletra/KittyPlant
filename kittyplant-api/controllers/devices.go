@@ -135,6 +135,24 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		}
 	}
 
+	// Send setup configuration to device before saving to database
+	setupTopic := newDevice.DeviceID + "/setup"
+	setupPayload := map[string]interface{}{
+		"moisture_low_threshold":  plant.MinHydLevel,
+		"moisture_high_threshold": plant.MaxHydLevel,
+	}
+	payloadBytes, err := json.Marshal(setupPayload)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal setup payload"})
+		return
+	}
+
+	err = c.mqtt.Publish(setupTopic, string(payloadBytes))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send setup to device"})
+		return
+	}
+
 	device := store.Device{
 		DeviceName: newDevice.DeviceID,
 		Name:       newDevice.Name,

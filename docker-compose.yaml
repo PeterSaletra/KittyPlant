@@ -17,15 +17,21 @@ services:
 
   postgres:
     image: postgres:17-alpine
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=$DB_PASS
       - POSTGRES_USER=$DB_USER
       - POSTGRES_DB=$DB_NAME
       - PGUSER=$DB_USER
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./certs/postgres:/var/lib/postgresql/certs:ro
+    command: |
+      postgres
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/certs/server.crt
+      -c ssl_key_file=/var/lib/postgresql/certs/server.key
     networks:
-      - app-network
+      - db-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       timeout: 10s
@@ -33,13 +39,16 @@ services:
 
   redis:
     image: redis:latest
+    volumes:
+      - redis_data:/data
+      - ./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./certs/redis:/etc/redis/certs:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass $REDIS_PASSWORD
     networks:
-      - app-network
-    ports:
-      - "6379:6379"
+      - cache-network
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping"]
+      test: ["CMD-SHELL", "redis-cli -a $REDIS_PASSWORD ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -57,6 +66,8 @@ services:
       - DB_USER=$DB_USER
       - DB_PASS=$DB_PASS
       - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+      - REDIS_PASSWORD=$REDIS_PASSWORD
       - BROKER=$BROKER
       - BROKER_USER=$BROKER_USER
       - BROKER_PASSWORD=$BROKER_PASSWORD
@@ -64,6 +75,8 @@ services:
       - ./backend:/app
     networks:
       - app-network
+      - db-network
+      - cache-network
     restart: on-failure
     depends_on:
       postgres:
@@ -99,6 +112,12 @@ services:
 networks:
   app-network:
     driver: bridge
+  db-network:
+    driver: bridge
+    internal: true
+  cache-network:
+    driver: bridge
+    internal: true
 
 volumes:
   postgres_data:
