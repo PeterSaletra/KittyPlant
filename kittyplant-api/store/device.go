@@ -32,6 +32,14 @@ func (d *Database) GetDevicesAssignedToUser(devices *[]Device, userID uint) (err
 	return nil
 }
 
+func (d *Database) GetDeviceByName(device *Device, deviceName string) (err error) {
+	if err = d.DB.Preload("Plant").Where("device_name = ?", deviceName).First(device).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (d *Database) GetDevicesCountAssignedToUserID(userID uint) (count int64, err error) {
 	if err = d.DB.Model(&Device{}).Joins("JOIN relations ON devices.id = relations.device_id").Where("relations.user_id = ?", userID).Count(&count).Error; err != nil {
 		return 0, err

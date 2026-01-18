@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"kittyplant-api/store"
 	"log"
 	"net/http"
@@ -135,6 +136,31 @@ func (c *Controllers) AddNewDevice(ctx *gin.Context) {
 		}
 	}
 
+	// Check if device already exists
+	var existingDevice store.Device
+	err = c.DB.GetDeviceByName(&existingDevice, newDevice.DeviceID)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check if device exists"})
+		return
+	}
+
+	// Device already exists - check if plant matches and add relation
+	if err != gorm.ErrRecordNotFound {
+		// Check if plant matches
+		if existingDevice.Plant.Name != plant.Name {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Device already exists with different plant type. Expected: %s, Got: %s", existingDevice.Plant.Name, plant.Name)})
+			return
+		}
+		err = c.DB.AssignDeviceToUser(userdb.ID, existingDevice.ID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign device to user"})
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{"message": "Device assigned successfully"})
+		return
+	}
+
+	// Device doesn't exist - create new device
 	// Send setup configuration to device before saving to database
 	setupTopic := newDevice.DeviceID + "/setup"
 	setupPayload := map[string]interface{}{
