@@ -140,10 +140,10 @@ function PlantsPage() {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full min-h-screen">
       <Header />
       <div className="h-full w-full">
-          <div className="w-4/5 flex flex-wrap justify-center mx-auto my-5">
+          <div className="w-[95%] sm:w-[90%] md:w-4/5 flex flex-wrap justify-center mx-auto my-5">
           {deviceName.map((name, index) => (
             <WaterLevel 
               key={index} 
@@ -156,8 +156,8 @@ function PlantsPage() {
           </div>
         <MenuButton />
         <Dialog>
-          <DialogTrigger><Button className='fixed right-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><AddIcon/></Button></DialogTrigger>
-          <DialogContent className='bg-(--kitty-light-pink) w-[400px]'>
+          <DialogTrigger><Button className='fixed right-4 sm:right-6 bottom-4 sm:bottom-6 bg-(--kitty-dark-pink) shadow-lg w-12 h-12 sm:w-15 sm:h-10 rounded-xl z-10'><AddIcon/></Button></DialogTrigger>
+          <DialogContent className='bg-(--kitty-light-pink) w-[95%] sm:w-[90%] md:w-[400px] max-h-[90vh] overflow-y-auto'>
             <DialogHeader>
               <DialogTitle>Add new device</DialogTitle>
               <DialogDescription>
@@ -165,7 +165,7 @@ function PlantsPage() {
                 <Input value={newID} onChange={(e) => setID(e.target.value)} className='bg-(--kitty-white)' placeholder='kp-0000'/>
                 <Label className='my-4'>Device Custom Name</Label>
                 <Input value={newDeviceName} onChange={(e) => setNewDeviceName(e.target.value)} className='bg-(--kitty-white)' placeholder='Super Cute Plant'/>
-                <Label className='my-4'>Pick you plant</Label>
+                <Label className='my-4'>Pick your plant</Label>
                 <Select value={newDevicePlant} onValueChange={setNewDevicePlant}>
                   <SelectTrigger className="w-full bg-(--kitty-white)">
                     <SelectValue placeholder="Select a plant" />
@@ -192,19 +192,19 @@ function PlantsPage() {
 
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
+            <DialogFooter className='flex-col sm:flex-row gap-2'>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" className='w-full sm:w-auto'>Cancel</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button type="submit" onClick={handleSubmitNewDevice} className='bg-(--kitty-dark-pink)'>Save changes</Button>
+                <Button type="submit" onClick={handleSubmitNewDevice} className='bg-(--kitty-dark-pink) w-full sm:w-auto'>Save changes</Button>
               </DialogClose>
            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-      <img src={leaftoplfet} alt="Leaf Top Left" className="fixed -z-5 h-auto w-1/5 top-0 left-0"/>
-      <img src={leaftopright} alt="Leaf Top Right" className="fixed -z-5 h-auto w-1/5 top-0 right-0"/>
+      <img src={leaftoplfet} alt="Leaf Top Left" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 left-0"/>
+      <img src={leaftopright} alt="Leaf Top Right" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 right-0"/>
     </div>
   );
 }

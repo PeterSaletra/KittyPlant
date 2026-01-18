@@ -29,7 +29,7 @@ function MenuButton() {
 
     return (
             <DropdownMenu>
-                <DropdownMenuTrigger asChild><Button className='fixed left-6 bottom-6 bg-(--kitty-dark-pink) shadow-lg w-15 h-10 rounded-xl'><MenuOpenIcon/></Button></DropdownMenuTrigger> 
+                <DropdownMenuTrigger asChild><Button className='fixed left-4 sm:left-6 bottom-4 sm:bottom-6 bg-(--kitty-dark-pink) shadow-lg w-12 h-12 sm:w-15 sm:h-10 rounded-xl z-10'><MenuOpenIcon/></Button></DropdownMenuTrigger> 
                 <DropdownMenuContent className='bg-(--kitty-light-pink)' side='bottom' align='start' sideOffset={5}>
                     <DropdownMenuLabel>Menu</DropdownMenuLabel>
                     <DropdownMenuSeparator /> 

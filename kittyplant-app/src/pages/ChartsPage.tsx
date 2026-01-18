@@ -50,16 +50,16 @@ const chartConfig = {
 
 function ProfilePage() {
     return (
-        <div>
+        <div className="min-h-screen">
             <Header />
             
-            <div>
+            <div className='px-4'>
                 <Card className="max-w-3xl mx-auto mt-5">
                     <CardHeader>
-                        <CardTitle className='flex justify-between items-center gap-2'>
-                            Water and Moisture Levels
+                        <CardTitle className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2'>
+                            <span className='text-lg sm:text-xl'>Water and Moisture Levels</span>
                             <Select>
-                                <SelectTrigger className="bg-(--kitty-white)">
+                                <SelectTrigger className="bg-(--kitty-white) w-full sm:w-[200px]">
                                     <SelectValue placeholder="Select a plant" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'>
@@ -150,8 +150,8 @@ function ProfilePage() {
             </div>
 
             <MenuButton />
-            <img src={leaftoplfet} alt="Leaf Top Left" className="fixed -z-5 h-auto w-1/5 top-0 left-0"/>
-            <img src={leaftopright} alt="Leaf Top Right" className="fixed -z-5 h-auto w-1/5 top-0 right-0"/>
+            <img src={leaftoplfet} alt="Leaf Top Left" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 left-0"/>
+            <img src={leaftopright} alt="Leaf Top Right" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 right-0"/>
         </div>
     );
 }
