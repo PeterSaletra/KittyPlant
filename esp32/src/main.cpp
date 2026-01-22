@@ -136,10 +136,15 @@ void setup() {
   client.begin(mqtt_server, port, espClient);
   client.connect(hostname);
   client.onMessage(callback);
+<<<<<<< HEAD
   client.subscribe(mqtt_topic);
   client.subscribe(mqtt_setup_topic);
   client.subscribe(topic);
   client.subscribe(commandTopic);
+=======
+  client.subscribe(mqtt_topic, 2);
+  client.subscribe(mqtt_setup_topic, 2);
+>>>>>>> 9907a4b (Changes in main.cpp)
 
   blinkColor(0, 255, 0); 
   blinkColor(0, 255, 0); 
