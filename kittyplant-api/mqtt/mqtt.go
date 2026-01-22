@@ -1,11 +1,13 @@
 package mqtt
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"kittyplant-api/cache"
-	"kittyplant-api/config"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -31,9 +33,37 @@ func NewMqttClient(broker string, cache *cache.Cache) (*MqttClient, error) {
 	log.Printf("Connecting to MQTT broker at %s", broker)
 	opts := mqtt.NewClientOptions().
 		AddBroker(broker).
-		SetClientID("kittyplant_mqtt_client").
-		SetUsername(config.AppConfig.BrokerUser).
-		SetPassword(config.AppConfig.BrokerPassword)
+		SetClientID("kittyplant_mqtt_client")
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: false,
+	}
+
+	// Load CA certificate
+	caCert, err := os.ReadFile("conf/mosquitto/certs/ca.crt")
+	if err != nil {
+		log.Printf("Failed to read CA certificate: %v", err)
+		return nil, err
+	}
+	caCertPool := x509.NewCertPool()
+	if !caCertPool.AppendCertsFromPEM(caCert) {
+		log.Printf("Failed to append CA certificate")
+		return nil, err
+	}
+	tlsConfig.RootCAs = caCertPool
+
+	// Load client certificate and key
+	clientCert, err := tls.LoadX509KeyPair(
+		"conf/mosquitto/certs/client.crt",
+		"conf/mosquitto/certs/client.key",
+	)
+	if err != nil {
+		log.Printf("Failed to load client certificate: %v", err)
+		return nil, err
+	}
+	tlsConfig.Certificates = []tls.Certificate{clientCert}
+
+	opts.SetTLSConfig(tlsConfig)
 
 	opts.SetDefaultPublishHandler(func(c mqtt.Client, msg mqtt.Message) {
 		log.Printf("Received message on topic %s: %s", msg.Topic(), string(msg.Payload()))

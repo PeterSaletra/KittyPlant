@@ -177,10 +177,10 @@ function ChartsPage() {
 
 
     return (
-        <div>
+        <div className="min-h-screen">
             <Header />
             
-            <div>
+            <div className='px-4'>
                 <Card className="max-w-3xl mx-auto mt-5">
                     <CardHeader>
                         <CardTitle className='flex justify-between items-center gap-2'>
@@ -303,8 +303,8 @@ function ChartsPage() {
             </div>
 
             <MenuButton />
-            <img src={leaftoplfet} alt="Leaf Top Left" className="fixed -z-5 h-auto w-1/5 top-0 left-0"/>
-            <img src={leaftopright} alt="Leaf Top Right" className="fixed -z-5 h-auto w-1/5 top-0 right-0"/>
+            <img src={leaftoplfet} alt="Leaf Top Left" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 left-0"/>
+            <img src={leaftopright} alt="Leaf Top Right" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 right-0"/>
         </div>
     );
 }

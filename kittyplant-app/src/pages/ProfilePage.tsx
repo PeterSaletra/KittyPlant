@@ -88,7 +88,7 @@ function ProfilePage() {
     };
 
     return (
-        <div>
+        <div className="min-h-screen">
             <Header />
             
             <div className="max-w-3xl mx-auto mt-5 px-4">
@@ -207,12 +207,12 @@ function ProfilePage() {
                                             />
                                         </div>
                                     </div>
-                                    <DialogFooter>
+                                    <DialogFooter className='flex-col sm:flex-row gap-2'>
                                         <DialogClose asChild>
-                                            <Button variant="outline" className='bg-(--kitty-dark-pink) text-white'>Anuluj</Button>
+                                            <Button variant="outline" className='bg-(--kitty-dark-pink) text-white w-full sm:w-auto'>Anuluj</Button>
                                         </DialogClose>
                                         <DialogClose asChild>
-                                            <Button onClick={handleChangePassword}>
+                                            <Button onClick={handleChangePassword} className='w-full sm:w-auto'>
                                                 Zmień hasło
                                             </Button>
                                         </DialogClose>
@@ -225,8 +225,8 @@ function ProfilePage() {
             </div>
 
             <MenuButton />
-            <img src={leaftoplfet} alt="Leaf Top Left" className="fixed -z-5 h-auto w-1/5 top-0 left-0"/>
-            <img src={leaftopright} alt="Leaf Top Right" className="fixed -z-5 h-auto w-1/5 top-0 right-0"/>
+            <img src={leaftoplfet} alt="Leaf Top Left" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 left-0"/>
+            <img src={leaftopright} alt="Leaf Top Right" className="hidden sm:block fixed -z-5 h-auto w-1/5 top-0 right-0"/>
         </div>
     );
 }

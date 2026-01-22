@@ -1,4 +1,6 @@
-const char* webpage = R"html(
+#include "config.h"
+
+static const char* webpage = R"html(
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -100,7 +102,7 @@ const char* webpage = R"html(
 </html>
 )html";
 
-const char* connecting_page = R"html(
+static const char* connecting_page = R"html(
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -138,7 +140,13 @@ const char* connecting_page = R"html(
 <body>
 
   <div class="header">
-    Connecting...
+  Device ID:
+)html";
+  
+  
+static const char* connecting_page_2 = R"html(<br>  
+  Connecting...
+    
   </div>
 
 </body>

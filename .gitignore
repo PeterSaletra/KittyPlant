@@ -2,7 +2,7 @@
 .idea/
 .env
 
-
 /conf/mosquitto/certs
 /esp32/data/
+
 /conf/mosquitto/passwd_file
