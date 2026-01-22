@@ -5,7 +5,7 @@ import WaterLevel from '../components/WaterLevel';
 import { useState, useEffect } from 'react';
 import leaftoplfet from '../assets/leaftopleft.png'
 import leaftopright from '../assets/leaftopright.png'
-import { getDevices, addDevice, type NewDevice } from '@/lib/devices';
+import { getDevices, addDevice, type NewDevice, deleteDevice } from '@/lib/devices';
 import { getPlants } from '@/lib/plants';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -31,33 +31,23 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+
+interface DeviceData  {
+  device_id: string;
+  name: string;
+  waterLevel: number;
+  moistureLevel: number;
+  plant: string;
+  lastTimeWatered: string;
+}
+
+
 function PlantsPage() {
-  const [waterLevels, setWaterLevels] = useState<number[]>([75, 45, 60, 20]);
-  const [moistureLevels, setMoistureLevels] = useState<number[]>([65, 40, 55, 15]);
-  const [lastWatered, setLastWatered] = useState<string[]>([
-    new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
-    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // 3 days ago
-  ]);
-  const [deviceName, setDeviceName] = useState<string[]>([
-    'Monstera in Living Room',
-    'Aloe in Bedroom', 
-    'Figowiec in Kitchen',
-    'Sansewieria in Office'
-  ]);
+  const [devices, setDevices] = useState<DeviceData[]>([]); 
   const [newDeviceName, setNewDeviceName] = useState('');
   const [newID, setID] = useState('');
   const [newDevicePlant, setNewDevicePlant] = useState('');
-  const [plantsName, setPlantsName] = useState<string[]>([
-    'Alokazja',
-    'Aloes Zwyczajny',
-    'Monstera Dziurawa',
-    'Skrzydłokwiat',
-    'Zamiokulkas Zamiolistny',
-    'Figowiec Dębolistny',
-    'Sansewieria Gwinejska'
-  ]);
+  const [plantsName, setPlantsName] = useState<string[]>([]);
   const [isCustomPlant, setIsCustomPlant] = useState(false);
   const [customPlantName, setCustomPlantName] = useState('');
   const [customWaterLevels, setCustomWaterLevels] = useState<[number, number]>([0, 100]);
@@ -67,16 +57,10 @@ function PlantsPage() {
       const response = await getDevices();
       console.log(response);
       if (!response.devices || response.devices.length === 0) {
-        setWaterLevels([]);
-        setDeviceName([]);
+        setDevices([]);
         return;
       }
-      const levels = response.devices.map((device: any) => device.waterLevel);
-      setWaterLevels(levels);
-      const moisture = response.devices.map((device: any) => device.moistureLevel);
-      setMoistureLevels(moisture); 
-      const name = response.devices.map((device: any) => device.name);
-      setDeviceName(name);
+      setDevices(response.devices);
     } catch (error) {
       console.error("Error fetching water level:", error);
       toast.error("Failed to fetch devices");
@@ -93,8 +77,17 @@ function PlantsPage() {
     }
   };
 
+    const handleDelete = async (device_id: string) => {
+      try{
+          await deleteDevice(device_id);
+          handleUpdateWaterLevel();
+          toast.success('Device deleted successfully');
+      }catch (error) {
+          toast.error(`Error deleting device: ${error}`);
+      }
+  }
+
   useEffect(() => {
-    // Uncomment these lines when backend is ready
     handleUpdateWaterLevel();
     handleGetPlants();
   }, []);
@@ -147,10 +140,13 @@ function PlantsPage() {
           {deviceName.map((name, index) => (
             <WaterLevel 
               key={index} 
-              waterLevel={waterLevels[index]} 
-              moistureLevel={moistureLevels[index]} 
-              lastTimeWatered={lastWatered[index]} 
-              name={name} 
+              waterLevel={device.waterLevel} 
+              moistureLevel={device.moistureLevel} 
+              lastTimeWatered={device.lastTimeWatered} 
+              name={device.name} 
+              plant={device.plant}
+              device_id={device.device_id}
+              onDelete={() => handleDelete(device.device_id)}
             />
           ))}
           </div>

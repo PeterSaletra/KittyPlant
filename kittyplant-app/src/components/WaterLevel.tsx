@@ -10,15 +10,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import DeleteDeviceButton from './DeleteDeviceButton';
+import CommandButton from './CommandButton';
 
 interface WaterLevelProps {
     waterLevel: number;
     moistureLevel: number;
     lastTimeWatered: string;
     name: string;
+    plant: string;
+    device_id: string;
+    onDelete: () => void;
 }
 
-const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, lastTimeWatered, name }) => {
+const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, lastTimeWatered, name, plant, device_id, onDelete }) => {
     const formatLastWatered = (isoString: string) => {
         if (!isoString) return 'Never';
         
@@ -45,8 +50,18 @@ const WaterLevel: React.FC<WaterLevelProps> = ({ waterLevel, moistureLevel, last
         <div className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 p-3">
             <Card className="bg-(--kitty-light-pink) border-2 border-(--kitty-white) hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-xl font-medium">{name}</CardTitle>
+                    <CardTitle className="text-xl font-medium flex items-center justify-between">
+                        <div>
+                             {name}
+                        </div>
+                        <div>
+                            <CommandButton device_id={device_id}/>
+                            <DeleteDeviceButton onDelete={onDelete}/>    
+                        </div>                             
+                        </CardTitle>
                     <CardDescription className="text-sm text-gray-600">
+                        <p>Device ID: {device_id}</p>
+                        <p>Plant: {plant}</p>
                         Last time watered: {formatLastWatered(lastTimeWatered)}
                     </CardDescription>
                 </CardHeader>

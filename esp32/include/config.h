@@ -41,6 +41,7 @@ static const char* hostname = "kp-0001";
 static const char* mqtt_topic = "kp-0001/data";
 static const char* mqtt_setup_topic = "kp-0001/setup";
 
+
 // WiFi credentials
 static const char* ssidAP = "Test";
 static const char* passwordAP = "testtest";

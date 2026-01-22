@@ -24,18 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useCallback, useEffect, useState } from 'react'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { getDeviceData, getDevicesNames } from '@/lib/devices';
 
+export const description = "View detailed charts of your plant's water and moisture levels over time to help you keep them healthy and thriving.";
 
-export const description = "An area chart with gradient fill"
-
-const chartData = [
-  { month: "January", moisture: 30, water: 80 },
-  { month: "February", moisture: 40, water: 20 },
-  { month: "March", moisture: 37, water: 20 },
-  { month: "April", moisture: 73, water: 90 },
-  { month: "May", moisture: 50, water: 30 },
-  { month: "June", moisture: 14, water: 40 },
-]
 const chartConfig = {
   moisture: {
     label: "Moisture",
@@ -48,7 +42,140 @@ const chartConfig = {
 } satisfies ChartConfig
 
 
-function ProfilePage() {
+
+function ChartsPage() {
+    const [deviceList, setDeviceList] = useState<{id: number, name: string}[]>([]);
+    const [selectedDevice, setSelectedDevice] = useState("");
+    const [selectedTime, setSelectedTime] = useState("day");
+    const [chartRange, setChartRange] = useState(new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }));
+    const [currentChartData, setCurrentChartData] = useState([]);
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    const updateChartRange = (date: Date, rangeType: string) => {
+        switch (rangeType) {
+            case "day": {
+                const formatted = date.toLocaleDateString(
+                    "en-US", 
+                    { 
+                        month: "long",
+                        weekday: "long",
+                        day: "numeric",
+                        year: "numeric"
+                    });
+                setChartRange(formatted);
+                break;
+            }
+            case "week": {
+                const tempDate = new Date(date);
+                const first = tempDate.getDate() - tempDate.getDay() + 1;
+                const last = first + 6;
+                const firstday = new Date(tempDate.setDate(first)).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+                const lastday = new Date(tempDate.setDate(last)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+                setChartRange(`${firstday} - ${lastday}`);
+                break;
+            }
+            case "month": { 
+                const month = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+                setChartRange(`${month}`);
+                break;
+            }
+            case "year": {
+                const year = date.getFullYear();
+                setChartRange(`${year}`);
+                break;
+            }
+            default:
+                setChartRange("January - June 2024");
+                break;
+        }
+    }
+
+    const handleChangeTime = (value: string) => {
+        setSelectedTime(value);
+        const now = new Date();
+        setCurrentDate(now);
+        updateChartRange(now, value);
+        // Fetch new data with the updated time range
+        if (selectedDevice) {
+            handleGetDeviceData(selectedDevice, value, now);
+        }
+    }
+
+    const handleNavigateTime = (direction: 'prev' | 'next') => {
+        const newDate = new Date(currentDate);
+        
+        switch (selectedTime) {
+            case "day":
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+                break;
+            case "week":
+                newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+                break;
+            case "month":
+                newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+                break;
+            case "year":
+                newDate.setFullYear(newDate.getFullYear() + (direction === 'next' ? 1 : -1));
+                break;
+        }
+        
+        setCurrentDate(newDate);
+        updateChartRange(newDate, selectedTime);
+        
+        if (selectedDevice) {
+            handleGetDeviceData(selectedDevice, selectedTime, newDate);
+        }
+    }
+
+    const handleDeviceChange = (value: string) => {
+        console.log("Selected device:", value);
+        setSelectedDevice(value);
+        // Fetch data for the newly selected device
+        handleGetDeviceData(value, selectedTime, currentDate);
+    }
+
+    const handleGetDeviceData = async (deviceId: string, rangeType: string, endDate: Date = new Date()) => {
+        const now = new Date(endDate);
+        const startDate = new Date(endDate);
+        
+        // Calculate start date based on range type
+        switch (rangeType) {
+            case "day":
+                startDate.setDate(startDate.getDate() - 1);
+                break;
+            case "week":
+                startDate.setDate(startDate.getDate() - 7);
+                break;
+            case "month":
+                startDate.setMonth(startDate.getMonth() - 1);
+                break;
+            case "year":
+                startDate.setFullYear(startDate.getFullYear() - 1);
+                break;
+            default:
+                startDate.setDate(startDate.getDate() - 1);
+        }
+        
+        const data = await getDeviceData(deviceId, startDate.toISOString(), now.toISOString(), rangeType);
+        setCurrentChartData(data.data);
+    }
+
+    const handleGetDevicesNames = useCallback(async () => {
+        const data = await getDevicesNames();
+        setDeviceList(data.devices);
+        if (data.devices.length > 0) {
+            const firstDevice = data.devices[0].name;
+            setSelectedDevice(firstDevice);
+            // Fetch initial data for the first device
+            handleGetDeviceData(firstDevice, "day");
+        }
+    }, []);
+
+    useEffect(() => {
+        handleGetDevicesNames();
+    }, [handleGetDevicesNames]);
+
+
     return (
         <div className="min-h-screen">
             <Header />
@@ -56,28 +183,43 @@ function ProfilePage() {
             <div className='px-4'>
                 <Card className="max-w-3xl mx-auto mt-5">
                     <CardHeader>
-                        <CardTitle className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2'>
-                            <span className='text-lg sm:text-xl'>Water and Moisture Levels</span>
-                            <Select>
-                                <SelectTrigger className="bg-(--kitty-white) w-full sm:w-[200px]">
-                                    <SelectValue placeholder="Select a plant" />
-                                </SelectTrigger>
-                                <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'>
-                                    <SelectItem value="light">Custom Device Name 1</SelectItem>
-                                    <SelectItem value="dark">Custom Device Name 2</SelectItem>
-                                    <SelectItem value="system">Custom Device Name 3</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <CardTitle className='flex justify-between items-center gap-2'>
+                            <div>
+                            Water and Moisture Levels
+                            </div>
+                            <div className='flex gap-4'>
+                                <Select value={selectedTime} onValueChange={(e) => handleChangeTime(e)}>
+                                    <SelectTrigger className="bg-(--kitty-white)">
+                                        <SelectValue placeholder="Select time period" />
+                                    </SelectTrigger>
+                                    <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'  >
+                                        <SelectItem key="day" value="day">Day</SelectItem>
+                                        <SelectItem key="week" value="week">Week</SelectItem>
+                                        <SelectItem key="month" value="month">Month</SelectItem>
+                                        <SelectItem key="year" value="year">Year</SelectItem>                                 
+                                    </SelectContent>
+                                </Select>
+                                <Select value={selectedDevice} onValueChange={(e) => handleDeviceChange(e)}>
+                                    <SelectTrigger className="bg-(--kitty-white)">
+                                        <SelectValue placeholder="Select a device" />
+                                    </SelectTrigger>
+                                    <SelectContent className='bg-(--kitty-light-pink) border-2 border-(--kitty-white)'  >
+                                        {deviceList.map((device) => (
+                                            <SelectItem key={device.id} value={device.name}>{device.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </CardTitle>
                         <CardDescription>
-                        Showing total visitors for the last 6 months
+                        Showing moisture and water levels for {selectedDevice} over the last {selectedTime}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfig}>
                         <AreaChart
                             accessibilityLayer
-                            data={chartData}
+                            data={currentChartData}
                             margin={{
                             left: 12,
                             right: 12,
@@ -85,11 +227,12 @@ function ProfilePage() {
                         >
                             <CartesianGrid vertical={false} />
                             <XAxis
-                            dataKey="month"
+                            dataKey="time"
                             tickLine={false}
                             axisLine={false}
-                            tickMargin={8}
-                            tickFormatter={(value) => value.slice(0, 3)}
+                            interval="preserveStartEnd"
+                            textAnchor="middle"
+                            tickMargin={10}
                             />
                             <ChartTooltip cursor={false} content={<ChartTooltipContent className='bg-(--kitty-white)'/>} />
                             <defs>
@@ -138,12 +281,22 @@ function ProfilePage() {
                         </ChartContainer>
                     </CardContent>
                     <CardFooter>
-                        <div className="flex w-full items-start gap-2 text-sm">
-                        <div className="grid gap-2">
-                            <div className="text-muted-foreground flex items-center gap-2 leading-none">
-                            January - June 2024
+                        <div className="flex w-full  text-sm flex-col">
+                            <div className='flex gap-2 items-center justify-center mb-2 text-muted-foreground'>
+                                <button 
+                                    onClick={() => handleNavigateTime('prev')}
+                                    className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'
+                                >
+                                    <ArrowBackIosIcon className='text-sm ml-2.5'  />
+                                </button>
+                                {chartRange}
+                                <button 
+                                    onClick={() => handleNavigateTime('next')}
+                                    className='hover:bg-[var(--kitty-white)] p-1 rounded-lg transition-colors flex items-center justify-center duration-400'
+                                >
+                                    <ArrowBackIosIcon className='rotate-180 mr-2.5'/>
+                                </button>
                             </div>
-                        </div>
                         </div>
                     </CardFooter>
                 </Card>
@@ -156,4 +309,4 @@ function ProfilePage() {
     );
 }
 
-export default ProfilePage;
+export default ChartsPage;
