@@ -7,7 +7,6 @@ import ProfilePage from './pages/ProfilePage'
 import ChartsPage from './pages/ChartsPage'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './contexts/AuthContext'
-import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
   return (

@@ -68,57 +68,27 @@ This project combines hardware and software components to create a seamless expe
 
 ## Setup
 
-```
+On Linux, install Docker Engine with Compose v2, OpenSSL, curl and `flock` (from `util-linux`). The account running setup needs access to Docker. KittyPlant uses TCP ports 443 for HTTPS and 8883 for MQTT.
+
+```bash
 git clone https://github.com/PeterSaletra/KittyPlant.git
+cd KittyPlant
+bash setup.sh --host YOUR_SERVER_IP_OR_DNS_NAME
 ```
 
-#### Backend setup
+Use the IP address or DNS name that your browser and ESP32 use to reach the server. Setup generates `.env` and TLS certificates, builds both applications, starts Compose and checks the website and API over HTTPS. To trust the site in your browser, import the public `.data/tls/web-ca.crt` into your computer's trusted root certificate store and open the HTTPS address printed by setup.
 
-```
-cd kittyplant-api
-go run main.go
-```
+Running setup again reuses the existing database, credentials and certificates. To start with an empty database and clear the Redis and Mosquitto volumes, use the reset mode and type `RESET` when prompted. This mode saves a private backup of the old `.env` under `.data/`, generates fresh credentials and keeps the generated certificates.
 
-or 
-
-```
-cd kittyplant-api
-go build
-./kittyplant-api.exe
-```
-
-#### Database
-
-```
-docker run --name kittyplant_db -e POSTGRES_USER=kitty -e POSTGRES_PASSWORD=password -e POSTGRES_DB=kittyplant_db -p 5432:5432 -d postgres
-```
-
-#### Mqtt broker
-
-```
-mosquitto_passwd -c conf/mosquitto/passwd_file username
-```
-
-#### Nginx
-
-```
-mkdir -p certs
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./certs/nginx.key -out ./certs/nginx.crt
-```
-
-#### Frontend setup
-
-```
-cd kiityplant-app
-npm install
-npm run dev
+```bash
+bash setup.sh --reset --host YOUR_SERVER_IP_OR_DNS_NAME
 ```
 
 #### ESP32
 
-Connect all hardware componets to esp32 board as on [Electronic Circuit Design](#electronic-circuit-design).
+Connect the hardware as shown in the [circuit design](#electronic-circuit-design). Set `mqtt_server` in `esp32/include/config.h` to the address used for `--host`. The firmware connects to port 8883.
 
-Program your esp32 board. We suggest to use platformIO as extension to VS Code.
+Copy `ca.crt`, `kp-0001.crt` and `kp-0001.key` from the server's `.data/tls/esp32/` to `esp32/data/`. Upload the SPIFFS filesystem image and then the firmware using PlatformIO. Keep the device key private. An ESP32 provisioned with a previous CA needs the files from the new installation.
 
 <p align="center" width="100%">
 <img src="/img/kittymain.png" alt="kittymain"/>

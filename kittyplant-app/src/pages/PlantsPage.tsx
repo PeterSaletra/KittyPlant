@@ -137,9 +137,9 @@ function PlantsPage() {
       <Header />
       <div className="h-full w-full">
           <div className="w-[95%] sm:w-[90%] md:w-4/5 flex flex-wrap justify-center mx-auto my-5">
-          {deviceName.map((name, index) => (
+          {devices.map((device) => (
             <WaterLevel 
-              key={index} 
+              key={device.device_id}
               waterLevel={device.waterLevel} 
               moistureLevel={device.moistureLevel} 
               lastTimeWatered={device.lastTimeWatered} 
