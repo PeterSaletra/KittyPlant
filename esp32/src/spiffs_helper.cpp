@@ -9,9 +9,9 @@ void init_spiffs() {
 }
 
 String read_ca_cert(){
-    File file = SPIFFS.open("ca_cert.pem", "r");
+    File file = SPIFFS.open("/ca.crt", "r");
     if (!file) {
-        Serial.println("Failed to open ca_cert.pem");
+        Serial.println("Failed to open ca.crt");
         return String();
     }
 
@@ -24,9 +24,9 @@ String read_ca_cert(){
 }
 
 String read_client_cert(){
-    File file = SPIFFS.open(String(hostname) + ".pem", "r");
+    File file = SPIFFS.open(String("/") + hostname + ".crt", "r");
     if (!file) {
-        Serial.println("Failed to open client_cert.pem");
+        Serial.println("Failed to open device certificate");
         return String();
     }
 
@@ -39,9 +39,9 @@ String read_client_cert(){
 }
 
 String read_client_key(){
-    File file = SPIFFS.open(String(hostname) + ".pem", "r");
+    File file = SPIFFS.open(String("/") + hostname + ".key", "r");
     if (!file) {
-        Serial.println("Failed to open client_key.pem");
+        Serial.println("Failed to open device key");
         return String();
     }
 

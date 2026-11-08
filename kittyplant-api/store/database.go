@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"kittyplant-api/config"
 	"log"
+	"net"
+	"net/url"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,20 +20,25 @@ func NewDatabase() *Database {
 }
 
 func (d *Database) Connect() error {
-	dsn := fmt.Sprintf("host=%s "+
-		"user=%s "+
-		"password=%s "+
-		"dbname=%s "+
-		"port=%s "+
-		"sslmode=disable "+
-		"TimeZone=Europe/Warsaw",
-		config.AppConfig.DbHost,
-		config.AppConfig.DbUser,
-		config.AppConfig.DbPass,
-		config.AppConfig.DbName,
-		config.AppConfig.DbPort)
+	cfg := config.AppConfig
+	dsn := url.URL{
+		Scheme:  "postgres",
+		User:    url.UserPassword(cfg.DbUser, cfg.DbPass),
+		Host:    net.JoinHostPort(cfg.DbHost, cfg.DbPort),
+		Path:    "/" + cfg.DbName,
+		RawPath: "/" + url.PathEscape(cfg.DbName),
+	}
+	params := url.Values{
+		"sslmode":  {"disable"},
+		"TimeZone": {"Europe/Warsaw"},
+	}
+	if cfg.DbTLSCA != "" {
+		params.Set("sslmode", "verify-full")
+		params.Set("sslrootcert", cfg.DbTLSCA)
+	}
+	dsn.RawQuery = params.Encode()
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn.String()), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("gorm.Open: %s", err)
 	}

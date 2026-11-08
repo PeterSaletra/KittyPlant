@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"log"
 	"strings"
@@ -14,15 +15,19 @@ type Cache struct {
 	redisClient *redis.Client
 }
 
-func NewCache(addr string, password string) *Cache {
+func NewCache(addr, password string, tlsConfig *tls.Config) *Cache {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: addr,
-		// Password: password,
-		DB: 0, // use default DB
+		Addr:      addr,
+		Password:  password,
+		TLSConfig: tlsConfig,
 	})
 	return &Cache{
 		redisClient: redisClient,
 	}
+}
+
+func (c *Cache) Ping(ctx context.Context) error {
+	return c.redisClient.Ping(ctx).Err()
 }
 
 func (c *Cache) SetObject(key string, value interface{}, expiration time.Duration) error {

@@ -48,5 +48,5 @@ static const char* passwordAP = "testtest";
 
 //MQTT server
 static const char* mqtt_server = "192.168.1.103";
-static const int port = 1883;
+static const int port = 8883;
 #endif
